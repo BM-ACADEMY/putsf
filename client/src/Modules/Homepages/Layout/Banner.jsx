@@ -47,15 +47,8 @@ const Banner = () => {
     : `${MEDIA_URL}${banner.image}`;
 
   return (
-    <section className="relative w-full pt-24 overflow-hidden">
-      {/* 🩵 Red–White–Blue Gradient Background */}
-      <div className="absolute inset-0 bg-gradient-to-r from-[#0033A0] via-white to-[#D62828] opacity-90"></div>
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(255,255,255,0.15)_0%,_transparent_70%)]"></div>
-
-      {/* ✴️ Curved white band at bottom */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-white rounded-t-[80%]"></div>
-
-      {/* 🌄 Banner Image */}
+    <section className="relative w-full pt-24 overflow-hidden bg-white">
+      {/* 🌄 Banner Image Only */}
       <div className="relative container mx-auto max-w-7xl px-4 z-10">
         <div className="relative overflow-hidden rounded-3xl shadow-2xl border-[6px] border-white mt-6">
           <img
@@ -63,8 +56,9 @@ const Banner = () => {
             alt={banner.title}
             className="w-full h-[320px] md:h-[480px] lg:h-[580px] object-cover transition-transform duration-700 ease-in-out transform hover:scale-105"
           />
-          {/* Dark overlay for text visibility */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent"></div>
+
+          {/* Subtle gradient for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
 
           {/* 🩸 Text Section */}
           <div className="absolute bottom-10 left-8 md:left-14 lg:left-20 text-white max-w-[90%] md:max-w-[60%] lg:max-w-[50%] drop-shadow-2xl">
@@ -82,12 +76,6 @@ const Banner = () => {
             </p>
           </div>
         </div>
-      </div>
-
-      {/* ⚪ Blue + Red Split Strip Below */}
-      <div className="absolute bottom-0 left-0 w-full h-4 flex">
-        <div className="w-1/2 bg-[#0033A0]"></div>
-        <div className="w-1/2 bg-[#D62828]"></div>
       </div>
 
       {/* ✨ Animations */}
