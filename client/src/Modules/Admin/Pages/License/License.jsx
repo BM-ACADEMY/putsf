@@ -61,10 +61,11 @@ export default function LicenseAdmin() {
               <div className="flex items-center gap-4">
                 {item.photo ? (
                   <img
-                    src={`http://127.0.0.1:8000${item.photo}`}
-                    alt="photo"
-                    className="w-20 h-20 object-cover rounded-xl border"
-                  />
+  src={item.photo}
+  alt="photo"
+  className="w-20 h-20 object-cover rounded-xl border"
+/>
+
                 ) : (
                   <div className="w-20 h-20 bg-gray-100 flex items-center justify-center rounded-xl text-gray-400">
                     No Photo

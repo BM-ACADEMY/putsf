@@ -1,23 +1,23 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 
-// Banner Card Component
+/* ----------------------- Banner Card ----------------------- */
 const BannerCard = ({ banner, onDelete, onUpdate }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(banner.title);
   const [subtitle, setSubtitle] = useState(banner.subtitle || "");
+
+  const MEDIA_URL = import.meta.env.VITE_MEDIA_BASE_URL;
 
   const handleSave = () => {
     onUpdate(banner._id, { title, subtitle });
     setIsEditing(false);
   };
 
-  const MEDIA_URL = import.meta.env.VITE_MEDIA_BASE_URL;
-
   return (
     <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 flex flex-col">
       <img
-        src={banner.image_url ? banner.image_url : `${MEDIA_URL}${banner.image}`}
+        src={banner.image_url || `${MEDIA_URL}${banner.image}`}
         alt={banner.title}
         className="w-full h-56 object-cover"
       />
@@ -29,12 +29,14 @@ const BannerCard = ({ banner, onDelete, onUpdate }) => {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="border p-2 rounded text-gray-800 focus:outline-blue-500 w-full"
+              placeholder="Title"
             />
             <input
               type="text"
               value={subtitle}
               onChange={(e) => setSubtitle(e.target.value)}
               className="border p-2 rounded text-gray-600 focus:outline-blue-500 w-full"
+              placeholder="Subtitle"
             />
             <div className="flex gap-2 mt-2 flex-wrap">
               <button
@@ -76,7 +78,7 @@ const BannerCard = ({ banner, onDelete, onUpdate }) => {
   );
 };
 
-// Admin Banner Management
+/* ----------------------- Banner Admin ----------------------- */
 const BannerAdmin = () => {
   const [banners, setBanners] = useState([]);
   const [title, setTitle] = useState("");
@@ -89,9 +91,9 @@ const BannerAdmin = () => {
   const [error, setError] = useState("");
 
   const dropRef = useRef(null);
-
   const API_URL = `${import.meta.env.VITE_API_BASE_URL}/banners/`;
 
+  /* -------- Fetch all banners -------- */
   const fetchBanners = async () => {
     setFetching(true);
     setError("");
@@ -110,8 +112,11 @@ const BannerAdmin = () => {
     fetchBanners();
   }, []);
 
+  /* -------- Handle drag & drop -------- */
   useEffect(() => {
     const div = dropRef.current;
+    if (!div) return;
+
     const handleDrop = (e) => {
       e.preventDefault();
       const droppedFile = e.dataTransfer.files[0];
@@ -119,21 +124,24 @@ const BannerAdmin = () => {
       setPreview(URL.createObjectURL(droppedFile));
     };
     const handleDragOver = (e) => e.preventDefault();
+
     div.addEventListener("drop", handleDrop);
     div.addEventListener("dragover", handleDragOver);
+
     return () => {
       div.removeEventListener("drop", handleDrop);
       div.removeEventListener("dragover", handleDragOver);
     };
   }, []);
 
+  /* -------- Handle file change -------- */
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     setFile(selectedFile);
-    if (selectedFile) setPreview(URL.createObjectURL(selectedFile));
-    else setPreview(null);
+    setPreview(selectedFile ? URL.createObjectURL(selectedFile) : null);
   };
 
+  /* -------- Handle upload -------- */
   const handleUpload = async (e) => {
     e.preventDefault();
     if (!file || !title) {
@@ -157,6 +165,7 @@ const BannerAdmin = () => {
           setProgress(Math.round((progressEvent.loaded * 100) / progressEvent.total));
         },
       });
+
       setTitle("");
       setSubtitle("");
       setFile(null);
@@ -171,8 +180,11 @@ const BannerAdmin = () => {
     }
   };
 
+  /* -------- Handle delete -------- */
   const handleDelete = async (_id) => {
     if (!window.confirm("Are you sure you want to delete this banner?")) return;
+
+    // Optimistic UI update
     setBanners((prev) => prev.filter((b) => b._id !== _id));
     try {
       await axios.delete(`${API_URL}${_id}/`);
@@ -183,19 +195,32 @@ const BannerAdmin = () => {
     }
   };
 
+  /* -------- Handle update -------- */
   const handleUpdate = async (_id, data) => {
-    try {
-      await axios.patch(`${API_URL}${_id}/`, data);
-      setBanners((prev) =>
-        prev.map((b) => (b._id === _id ? { ...b, ...data } : b))
-      );
-    } catch (err) {
-      console.error(err);
-      setError("Failed to update banner.");
-      fetchBanners();
-    }
-  };
+  try {
+    const formData = new FormData();
+    if (data.title) formData.append("title", data.title);
+    if (data.subtitle) formData.append("subtitle", data.subtitle);
+    if (data.image) formData.append("image", data.image); // only if you allow updating the image later
 
+    console.log([...formData.entries()]);
+
+    await axios.patch(`${API_URL}${_id}/`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    setBanners((prev) =>
+      prev.map((b) => (b._id === _id ? { ...b, ...data } : b))
+    );
+  } catch (err) {
+    console.error(err);
+    setError("Failed to update banner.");
+    fetchBanners();
+  }
+};
+
+
+  /* ----------------------- UI ----------------------- */
   return (
     <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
       <h1 className="text-3xl font-bold mb-6 md:mb-8 text-gray-800 text-center md:text-left">
@@ -204,6 +229,7 @@ const BannerAdmin = () => {
 
       {error && <div className="mb-4 text-red-600 font-medium">{error}</div>}
 
+      {/* Upload Form */}
       <form
         onSubmit={handleUpload}
         className="mb-6 flex flex-col md:flex-row gap-4 items-center"
@@ -213,14 +239,14 @@ const BannerAdmin = () => {
           placeholder="Title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="border p-3 rounded-lg flex-1 w-full shadow-sm focus:ring-2 focus:ring-blue-400 focus:outline-none"
+          className="border p-3 rounded-lg flex-1 shadow-sm focus:ring-2 focus:ring-blue-400 focus:outline-none w-full"
         />
         <input
           type="text"
           placeholder="Subtitle"
           value={subtitle}
           onChange={(e) => setSubtitle(e.target.value)}
-          className="border p-3 rounded-lg flex-1 w-full shadow-sm focus:ring-2 focus:ring-blue-400 focus:outline-none"
+          className="border p-3 rounded-lg flex-1 shadow-sm focus:ring-2 focus:ring-blue-400 focus:outline-none w-full"
         />
         <div
           ref={dropRef}
@@ -246,6 +272,7 @@ const BannerAdmin = () => {
         </button>
       </form>
 
+      {/* Upload Progress Bar */}
       {loading && progress > 0 && (
         <div className="w-full bg-gray-200 h-2 rounded mb-4 overflow-hidden">
           <div
@@ -255,6 +282,7 @@ const BannerAdmin = () => {
         </div>
       )}
 
+      {/* Preview */}
       {preview && (
         <div className="mb-6 flex justify-center">
           <div className="border rounded-lg overflow-hidden shadow-md">
@@ -267,8 +295,11 @@ const BannerAdmin = () => {
         </div>
       )}
 
+      {/* Banner Grid */}
       {fetching ? (
         <p className="text-gray-500 text-center">Loading banners...</p>
+      ) : banners.length === 0 ? (
+        <p className="text-gray-500 text-center">No banners available.</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {banners.map((banner) => (

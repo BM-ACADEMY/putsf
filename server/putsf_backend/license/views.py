@@ -53,7 +53,7 @@ class LicenseViewSet(viewsets.ViewSet):
             "aadhar_number": data.get("aadhar_number"),
             "phone": data.get("phone"),
             "address": data.get("address"),
-            "photo": f"/media/{photo_path}" if photo_path else None,
+            "photo": request.build_absolute_uri(f"/media/{photo_path}") if photo_path else None,
             "is_approved": False,
         }
 
@@ -110,24 +110,38 @@ def download_license(request):
 
         if license_collection is None:
             print("❌ MongoDB not connected")
-            return Response({"error": "MongoDB not connected"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                {"error": "MongoDB not connected"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
+        # 🔍 Fetch license by phone
         license_doc = license_collection.find_one({"phone": phone, "is_approved": True})
         print("🔍 License found:", license_doc)
 
         if not license_doc:
-            return Response({"error": "License not found or not approved"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "License not found or not approved"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
-        license_doc["_id"] = str(license_doc["_id"])
+        # ✅ Safely convert Mongo ObjectId to string and rename to avoid template underscore issue
+        license_doc["id"] = str(license_doc["_id"])
+        del license_doc["_id"]
+
+        # ✅ Render the HTML template
         html_content = render_to_string("license_template.html", {"license": license_doc})
         print("🧾 HTML rendered successfully")
 
+        # ✅ Generate PDF
         pdf = HTML(string=html_content).write_pdf()
         print("📄 PDF generated successfully")
 
+        # ✅ Send PDF as downloadable response
         response = HttpResponse(pdf, content_type="application/pdf")
-        response["Content-Disposition"] = f'attachment; filename="license_{license_doc["name"]}.pdf"'
+        response["Content-Disposition"] = f"attachment; filename=license_{license_doc['name']}.pdf"
         print("✅ Response ready")
+
         return response
 
     except Exception as e:

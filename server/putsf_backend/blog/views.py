@@ -1,4 +1,3 @@
-# blog/views.py
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -8,6 +7,7 @@ from django.utils import timezone
 from putsf_backend.mongo import db
 from bson.objectid import ObjectId
 import os
+
 
 class BlogPostAPIView(APIView):
     parser_classes = (MultiPartParser, FormParser)
@@ -62,7 +62,6 @@ class BlogPostAPIView(APIView):
 
         image_url = request.build_absolute_uri(f"/media/blog/{image_file.name}")
 
-        # Insert into MongoDB
         post_data = {
             "title": title,
             "subtitle": subtitle,
@@ -77,9 +76,9 @@ class BlogPostAPIView(APIView):
 
         return Response({"message": "Blog post created successfully!", "post": post_data}, status=status.HTTP_201_CREATED)
 
-    def delete(self, request, post_id):
+    def patch(self, request, post_id):
         """
-        Delete a blog post by ID
+        PATCH: Partially update blog post (title, subtitle, content, status, image)
         """
         posts_collection = db["blog_posts"]
 
@@ -92,38 +91,74 @@ class BlogPostAPIView(APIView):
         if not post:
             return Response({"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        # Delete image file if exists
+        update_data = {}
+        title = request.data.get("title")
+        subtitle = request.data.get("subtitle")
+        content = request.data.get("content")
+        status_post = request.data.get("status")
+        image_file = request.FILES.get("image")
+
+        if title:
+            update_data["title"] = title
+        if subtitle:
+            update_data["subtitle"] = subtitle
+        if content:
+            update_data["content"] = content
+        if status_post in ["draft", "published"]:
+            update_data["status"] = status_post
+
+        # Handle new image upload
+        if image_file:
+            media_dir = os.path.join(settings.MEDIA_ROOT, "blog")
+            os.makedirs(media_dir, exist_ok=True)
+            file_path = os.path.join(media_dir, image_file.name)
+
+            with open(file_path, "wb+") as f:
+                for chunk in image_file.chunks():
+                    f.write(chunk)
+
+            full_url = request.build_absolute_uri(f"/media/blog/{image_file.name}")
+            update_data["image_url"] = full_url
+
+            # Remove old image if different
+            old_image_url = post.get("image_url")
+            if old_image_url and old_image_url != full_url:
+                filename = os.path.basename(old_image_url)
+                old_file_path = os.path.join(settings.MEDIA_ROOT, "blog", filename)
+                if os.path.exists(old_file_path):
+                    os.remove(old_file_path)
+
+        if not update_data:
+            return Response({"error": "No valid fields to update"}, status=status.HTTP_400_BAD_REQUEST)
+
+        posts_collection.update_one({"_id": obj_id}, {"$set": update_data})
+
+        post.update(update_data)
+        post["_id"] = str(post["_id"])
+
+        return Response({"message": "Blog updated successfully!", "post": post}, status=status.HTTP_200_OK)
+
+    def delete(self, request, post_id):
+        """
+        DELETE a blog post by ID
+        """
+        posts_collection = db["blog_posts"]
+
+        try:
+            obj_id = ObjectId(post_id)
+        except:
+            return Response({"error": "Invalid post ID"}, status=status.HTTP_400_BAD_REQUEST)
+
+        post = posts_collection.find_one({"_id": obj_id})
+        if not post:
+            return Response({"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND)
+
         image_url = post.get("image_url")
         if image_url:
-            relative_path = image_url.replace(request.build_absolute_uri("/"), "")
-            file_path = os.path.join(settings.BASE_DIR, relative_path)
+            filename = os.path.basename(image_url)
+            file_path = os.path.join(settings.MEDIA_ROOT, "blog", filename)
             if os.path.exists(file_path):
                 os.remove(file_path)
 
         posts_collection.delete_one({"_id": obj_id})
         return Response({"message": "Blog post deleted successfully!"}, status=status.HTTP_200_OK)
-
-    def patch(self, request, post_id):
-        """
-        Partially update a blog post, e.g., change status
-        """
-        posts_collection = db["blog_posts"]
-
-        try:
-            obj_id = ObjectId(post_id)
-        except:
-            return Response({"error": "Invalid post ID"}, status=status.HTTP_400_BAD_REQUEST)
-
-        post = posts_collection.find_one({"_id": obj_id})
-        if not post:
-            return Response({"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        status_post = request.data.get("status")
-        if status_post not in ["draft", "published"]:
-            return Response({"error": "Invalid status"}, status=status.HTTP_400_BAD_REQUEST)
-
-        posts_collection.update_one({"_id": obj_id}, {"$set": {"status": status_post}})
-        post["status"] = status_post
-        post["_id"] = str(post["_id"])
-
-        return Response({"message": "Blog status updated successfully!", "post": post}, status=status.HTTP_200_OK)

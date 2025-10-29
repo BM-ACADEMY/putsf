@@ -1,260 +1,228 @@
-// src/Modules/Admin/Pages/BlogAdmin.jsx
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const BlogAdmin = ({ userToken }) => {
+const BlogAdmin = () => {
+  const API_URL = `${import.meta.env.VITE_API_BASE_URL}/blog/posts/`;
+  const MEDIA_URL = import.meta.env.VITE_MEDIA_BASE_URL;
+
   const [blogs, setBlogs] = useState([]);
-  const [showModal, setShowModal] = useState(false);
-  const [editingBlog, setEditingBlog] = useState(null);
-  const [title, setTitle] = useState("");
-  const [subtitle, setSubtitle] = useState("");
-  const [content, setContent] = useState("");
-  const [status, setStatus] = useState("published");
-  const [imageFile, setImageFile] = useState(null);
-  const [previewImage, setPreviewImage] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({
+    _id: "",
+    title: "",
+    subtitle: "",
+    content: "",
+    image: null,
+  });
+  const [preview, setPreview] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const API_URL = import.meta.env.VITE_API_BASE_URL + "/blog/posts/";
-
+  /* ---------------- Fetch Blogs ---------------- */
   useEffect(() => {
     fetchBlogs();
   }, []);
 
   const fetchBlogs = async () => {
     try {
-      const res = await axios.get(API_URL, {
-        headers: { Authorization: `Token ${userToken}` },
-      });
-      setBlogs(Array.isArray(res.data) ? res.data : []);
+      const res = await axios.get(API_URL);
+      setBlogs(res.data);
+      setLoading(false);
     } catch (err) {
-      console.error(err);
-      setBlogs([]);
-    }
-  };
-
-  const resetForm = () => {
-    setTitle("");
-    setSubtitle("");
-    setContent("");
-    setStatus("published");
-    setImageFile(null);
-    setPreviewImage(null);
-    setEditingBlog(null);
-  };
-
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    setImageFile(file);
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => setPreviewImage(e.target.result);
-      reader.readAsDataURL(file);
-    } else setPreviewImage(null);
-  };
-
-  const handleCreateOrEdit = async (e) => {
-    e.preventDefault();
-    if (!title || !content) return alert("Title and content are required");
-
-    setLoading(true);
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("subtitle", subtitle);
-    formData.append("content", content);
-    formData.append("status", status);
-    if (imageFile) formData.append("image", imageFile);
-
-    try {
-      if (editingBlog) {
-        await axios.put(`${API_URL}${editingBlog._id}/`, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Token ${userToken}`,
-          },
-        });
-      } else {
-        await axios.post(API_URL, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Token ${userToken}`,
-          },
-        });
-      }
-      fetchBlogs();
-      resetForm();
-      setShowModal(false);
-    } catch (err) {
-      console.error(err);
-      alert("Failed to save blog.");
-    } finally {
+      setError("Failed to load blogs");
       setLoading(false);
     }
   };
 
-  const handleDelete = async (blogId) => {
-    if (!window.confirm("Are you sure you want to delete this blog?")) return;
-    try {
-      await axios.delete(`${API_URL}${blogId}/`, {
-        headers: { Authorization: `Token ${userToken}` },
-      });
-      setBlogs((prev) => prev.filter((b) => String(b._id) !== blogId));
-    } catch (err) {
-      console.error(err);
-      alert("Failed to delete blog.");
+  /* ---------------- Handle Input Changes ---------------- */
+  const handleChange = (e) => {
+    const { name, value, files } = e.target;
+    if (name === "image") {
+      const file = files[0];
+      setForm({ ...form, image: file });
+      setPreview(URL.createObjectURL(file));
+    } else {
+      setForm({ ...form, [name]: value });
     }
   };
 
-  const handleEdit = (blog) => {
-    setEditingBlog(blog);
-    setTitle(blog.title);
-    setSubtitle(blog.subtitle || "");
-    setContent(blog.content);
-    setStatus(blog.status);
-    setPreviewImage(blog.image_url || null);
-    setShowModal(true);
+  /* ---------------- Submit Form ---------------- */
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("title", form.title);
+    formData.append("subtitle", form.subtitle);
+    formData.append("content", form.content);
+    if (form.image) formData.append("image", form.image);
+
+    try {
+      if (isEditing) {
+        await axios.patch(`${API_URL}${form._id}/`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        alert("Blog updated successfully!");
+      } else {
+        await axios.post(API_URL, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        alert("Blog created successfully!");
+      }
+      resetForm();
+      fetchBlogs();
+    } catch (err) {
+      alert("Error saving blog");
+      console.error(err);
+    }
   };
 
+  /* ---------------- Edit Blog ---------------- */
+  const handleEdit = (blog) => {
+    setForm({
+      _id: blog._id,
+      title: blog.title,
+      subtitle: blog.subtitle,
+      content: blog.content,
+      image: null,
+    });
+    setPreview(blog.image_url);
+    setIsEditing(true);
+  };
+
+  /* ---------------- Delete Blog ---------------- */
+  const handleDelete = async (id) => {
+    if (!confirm("Are you sure you want to delete this blog?")) return;
+    try {
+      await axios.delete(`${API_URL}${id}/`);
+      fetchBlogs();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to delete blog");
+    }
+  };
+
+  /* ---------------- Reset Form ---------------- */
+  const resetForm = () => {
+    setForm({
+      _id: "",
+      title: "",
+      subtitle: "",
+      content: "",
+      image: null,
+    });
+    setPreview(null);
+    setIsEditing(false);
+  };
+
+  /* ---------------- UI ---------------- */
+  if (loading) return <p className="text-center mt-10 text-gray-500">Loading...</p>;
+  if (error) return <p className="text-center mt-10 text-red-500">{error}</p>;
+
   return (
-    <div className="p-8 bg-gray-50 min-h-screen space-y-6">
-      <h1 className="text-4xl font-bold text-gray-900">Blog Admin Panel</h1>
+    <div className="p-6 bg-gray-50 min-h-screen">
+      <div className="max-w-5xl mx-auto bg-white p-6 rounded-xl shadow-md">
+        <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+          {isEditing ? "Edit Blog Post" : "Add New Blog Post"}
+        </h2>
 
-      <button
-        onClick={() => setShowModal(true)}
-        className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition shadow-md"
-      >
-        {editingBlog ? "Edit Blog" : "+ Create New Blog"}
-      </button>
+        <form onSubmit={handleSubmit} className="grid gap-4">
+          <input
+            type="text"
+            name="title"
+            placeholder="Title"
+            value={form.title}
+            onChange={handleChange}
+            className="border rounded-lg p-2 w-full"
+          />
+          <input
+            type="text"
+            name="subtitle"
+            placeholder="Subtitle"
+            value={form.subtitle}
+            onChange={handleChange}
+            className="border rounded-lg p-2 w-full"
+          />
+          <textarea
+            name="content"
+            placeholder="Content"
+            rows="4"
+            value={form.content}
+            onChange={handleChange}
+            className="border rounded-lg p-2 w-full"
+          ></textarea>
 
-      {/* ✅ Elegant Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn">
-          <div className="relative bg-white/80 backdrop-blur-md rounded-2xl shadow-2xl border border-white/30 w-full max-w-3xl p-8 animate-slideUp">
-            {/* Close Button */}
-            <button
-              onClick={() => {
-                setShowModal(false);
-                resetForm();
-              }}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl font-bold"
-            >
-              &times;
-            </button>
-
-            <h2 className="text-2xl font-semibold mb-6 text-gray-800">
-              {editingBlog ? "Edit Blog" : "Create Blog"}
-            </h2>
-
-            <form onSubmit={handleCreateOrEdit} className="space-y-4">
-              <input
-                type="text"
-                placeholder="Title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-                required
-              />
-              <input
-                type="text"
-                placeholder="Subtitle"
-                value={subtitle}
-                onChange={(e) => setSubtitle(e.target.value)}
-                className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-              <textarea
-                placeholder="Content"
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                className="w-full border border-gray-300 p-3 rounded-lg h-32 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                required
-              />
-              <select
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-                className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              >
-                <option value="draft">Draft</option>
-                <option value="published">Published</option>
-              </select>
-
-              {/* Image Upload */}
-              <div
-                className="w-full h-44 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center text-gray-500 cursor-pointer hover:border-blue-400 transition"
-                onClick={() => document.getElementById("fileInput").click()}
-              >
-                {previewImage ? (
-                  <img
-                    src={previewImage}
-                    alt="Preview"
-                    className="w-full h-full object-cover rounded-lg transition-transform duration-300 hover:scale-105"
-                  />
-                ) : (
-                  "Click to select image"
-                )}
-              </div>
-              <input
-                type="file"
-                id="fileInput"
-                className="hidden"
-                onChange={handleImageChange}
-              />
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-300 shadow-md"
-              >
-                {loading ? "Saving..." : editingBlog ? "Update Blog" : "Create Blog"}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Blogs Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-h-[70vh] overflow-y-auto">
-        {blogs.map((blog) => (
-          <div
-            key={blog._id}
-            className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-2xl transition-shadow transform hover:-translate-y-1 flex flex-col"
-          >
-            {blog.image_url && (
+          <div>
+            <label className="block mb-1 text-gray-700 font-medium">Upload Image</label>
+            <input
+              type="file"
+              name="image"
+              accept="image/*"
+              onChange={handleChange}
+              className="border rounded-lg p-2 w-full"
+            />
+            {preview && (
               <img
-                src={blog.image_url}
-                alt={blog.title}
-                className="w-full h-52 object-cover transition-transform duration-300 hover:scale-105"
+                src={preview}
+                alt="Preview"
+                className="mt-3 w-48 h-32 object-cover rounded-lg border"
               />
             )}
-            <div className="p-4 flex flex-col flex-1">
-              <h2 className="font-semibold text-xl mb-1">{blog.title}</h2>
-              {blog.subtitle && (
-                <p className="text-gray-600 text-sm mb-3">{blog.subtitle}</p>
-              )}
-              <div className="flex justify-end mt-auto">
+          </div>
+
+          <div className="flex gap-3">
+            <button
+              type="submit"
+              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+            >
+              {isEditing ? "Update" : "Create"}
+            </button>
+            {isEditing && (
+              <button
+                type="button"
+                onClick={resetForm}
+                className="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500"
+              >
+                Cancel
+              </button>
+            )}
+          </div>
+        </form>
+      </div>
+
+      {/* Blog List */}
+      <div className="max-w-5xl mx-auto mt-10">
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">All Blog Posts</h2>
+        <div className="grid md:grid-cols-2 gap-6">
+          {blogs.map((blog) => (
+            <div
+              key={blog._id}
+              className="bg-white rounded-xl shadow p-4 border hover:shadow-lg transition"
+            >
+              <img
+                src={blog.image_url || `${MEDIA_URL}/blog/default.jpg`}
+                alt={blog.title}
+                className="w-full h-40 object-cover rounded-lg mb-3"
+              />
+              <h3 className="text-lg font-semibold">{blog.title}</h3>
+              <p className="text-gray-600 text-sm">{blog.subtitle}</p>
+              <p className="text-gray-500 mt-2 text-sm line-clamp-3">{blog.content}</p>
+              <div className="flex gap-3 mt-4">
+                <button
+                  onClick={() => handleEdit(blog)}
+                  className="px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  Edit
+                </button>
                 <button
                   onClick={() => handleDelete(blog._id)}
-                  className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm transition"
+                  className="px-3 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700"
                 >
                   Delete
                 </button>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-
-      {/* ✨ Modal Animations */}
-      <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes slideUp {
-          from { opacity: 0; transform: translateY(30px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fadeIn { animation: fadeIn 0.4s ease-in-out; }
-        .animate-slideUp { animation: slideUp 0.4s ease-in-out; }
-      `}</style>
     </div>
   );
 };

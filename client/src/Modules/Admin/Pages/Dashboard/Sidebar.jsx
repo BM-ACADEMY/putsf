@@ -14,7 +14,6 @@ const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const links = [
-    { to: "/admin/dashboard", label: "Dashboard", icon: <HiHome /> },
     { to: "/admin/banner", label: "Banner", icon: <HiViewGrid /> },
     { to: "/admin/gallery", label: "Gallery", icon: <HiPhotograph /> },
     { to: "/admin/blogs", label: "Blogs", icon: <HiNewspaper /> },

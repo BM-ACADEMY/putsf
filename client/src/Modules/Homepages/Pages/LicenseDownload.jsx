@@ -8,8 +8,8 @@ export default function MembershipDownload() {
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // ✅ Use API base URL from .env
-  const API_URL = `${import.meta.env.VITE_API_BASE_URL}/license-download/`;
+  // ✅ Use API base URL from .env (no trailing slash)
+  const API_URL = `${import.meta.env.VITE_API_BASE_URL}/license-download`;
 
   const handleDownload = async () => {
     if (!phone.trim()) {
@@ -19,19 +19,30 @@ export default function MembershipDownload() {
 
     try {
       setLoading(true);
-      const res = await axios.get(`${API_URL}?phone=${phone}`, {
-        responseType: "blob",
+
+      // ✅ Send clean phone (remove spaces, special chars)
+      const cleanPhone = phone.replace(/\D/g, "");
+
+      const res = await axios.get(`${API_URL}/?phone=${cleanPhone}`, {
+        responseType: "blob", // Important for PDF
       });
 
-      const url = window.URL.createObjectURL(new Blob([res.data]));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", "membership_certificate.pdf");
-      document.body.appendChild(link);
-      link.click();
+      if (res.status === 200) {
+        // ✅ Create and download file
+        const url = window.URL.createObjectURL(new Blob([res.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", "membership_certificate.pdf");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
 
-      toast.success("🎉 Membership Certificate downloaded successfully!");
+        toast.success("🎉 Membership Certificate downloaded successfully!");
+      } else {
+        toast.error("❌ Membership not found or not approved yet");
+      }
     } catch (error) {
+      console.error("Download error:", error);
       toast.error("❌ Membership not found or not approved yet");
     } finally {
       setLoading(false);
@@ -82,7 +93,7 @@ export default function MembershipDownload() {
         </button>
 
         <p className="text-sm text-gray-600 mt-6 italic">
-          “For our village to grow — our people must rise.” 🇮🇳
+          “For our union to grow — our students must rise.” 🎓
         </p>
       </motion.div>
     </section>

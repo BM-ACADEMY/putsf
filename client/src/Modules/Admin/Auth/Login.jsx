@@ -26,8 +26,8 @@ export default function Login() {
       localStorage.setItem("admin_access_token", res.data.access);
       localStorage.setItem("admin_refresh_token", res.data.refresh);
 
-      // Redirect to dashboard
-      navigate("/admin/dashboard");
+      // ✅ Redirect to Gallery page instead of Dashboard
+      navigate("/admin/gallery");
     } catch (err) {
       console.error(err);
       setError("Invalid email or password");
@@ -51,7 +51,7 @@ export default function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full border border-gray-300 p-2 rounded mt-1"
+              className="w-full border border-gray-300 p-2 rounded mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />
           </div>
 
@@ -62,7 +62,7 @@ export default function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full border border-gray-300 p-2 rounded mt-1"
+              className="w-full border border-gray-300 p-2 rounded mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />
           </div>
 

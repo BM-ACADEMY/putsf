@@ -1,28 +1,203 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Membership License</title>
+  <meta charset="UTF-8" />
+  <title>Puducherry Union Territory Student Federation Card</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 40px; }
-    h1 { color: #0066cc; }
-    .info { margin-bottom: 10px; }
-    .photo img { width: 120px; height: 120px; object-fit: cover; border-radius: 8px; }
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f5faff, #eaf4ff);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .license-card {
+      width: 480px;
+      border-radius: 16px;
+      background: white;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+      border: 3px solid #004aad; /* Federation Blue */
+      position: relative;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(90deg, #004aad, #007bff);
+      color: white;
+      text-align: center;
+      padding: 18px;
+      position: relative;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 1.4rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .header h2 {
+      margin: 4px 0 0;
+      font-size: 0.95rem;
+      font-weight: 500;
+      opacity: 0.95;
+    }
+
+    /* Logo Section */
+    .logo {
+      position: absolute;
+      top: 10px;
+      left: 20px;
+      width: 60px;
+      height: 60px;
+    }
+
+    .logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    /* Content */
+    .content {
+      padding: 20px 25px;
+      position: relative;
+    }
+
+    .photo-section {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    .photo-section img {
+      width: 120px;
+      height: 120px;
+      border-radius: 12px;
+      object-fit: cover;
+      border: 3px solid #004aad;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    }
+
+    .info {
+      font-size: 15px;
+      color: #333;
+      margin: 6px 0;
+      line-height: 1.5;
+    }
+
+    .info strong {
+      color: #004aad;
+      display: inline-block;
+      width: 130px;
+    }
+
+    /* Footer */
+    .footer {
+      background: #f7fbff;
+      padding: 15px 20px;
+      border-top: 2px solid #cce0ff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer .status {
+      background: #e6f9ea;
+      color: #0b8a42;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      border: 1px solid #a4dfb4;
+    }
+
+    .footer .signature {
+      text-align: right;
+      font-size: 13px;
+      color: #444;
+    }
+
+    .signature-line {
+      width: 120px;
+      border-top: 1px solid #333;
+      margin-top: 6px;
+    }
+
+    /* Watermark */
+    .watermark {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-30deg);
+      font-size: 3.2rem;
+      font-weight: 700;
+      color: rgba(0, 74, 173, 0.07);
+      text-transform: uppercase;
+      pointer-events: none;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    /* Print Styling */
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+      }
+      .license-card {
+        box-shadow: none;
+        border: 2px solid #004aad;
+      }
+      .watermark {
+        opacity: 0.08;
+      }
+    }
   </style>
 </head>
 <body>
-  <h1>Membership License</h1>
-  <p class="info"><strong>Name:</strong> {{ license.name }}</p>
-  <p class="info"><strong>Aadhar:</strong> {{ license.aadhar_number }}</p>
-  <p class="info"><strong>Phone:</strong> {{ license.phone }}</p>
-  <p class="info"><strong>Address:</strong> {{ license.address }}</p>
+  <div class="license-card">
+    <div class="watermark">PUDUCHERRY U.T. STUDENT FEDERATION</div>
 
-  {% if license.photo %}
-  <div class="photo">
-    <img src="{{ license.photo }}" alt="Photo" />
+    <div class="header">
+      <div class="logo">
+        {% if license.logo %}
+        <img src="{{ license.logo }}" alt="Federation Logo">
+        {% else %}
+        <img src="{{ MEDIA_URL }}default_logo.png" alt="Federation Logo">
+        {% endif %}
+      </div>
+      <h1>Puducherry U.T. Student Federation</h1>
+      <h2>Membership Identification Card</h2>
+    </div>
+
+    <div class="content">
+      {% if license.photo %}
+      <div class="photo-section">
+        <img src="{{ license.photo }}" alt="Member Photo" />
+      </div>
+      {% endif %}
+
+      <p class="info"><strong>Member Name:</strong> {{ license.name }}</p>
+      <p class="info"><strong>Aadhar Number:</strong> {{ license.aadhar_number }}</p>
+      <p class="info"><strong>Phone Number:</strong> {{ license.phone }}</p>
+      <p class="info"><strong>Address:</strong> {{ license.address }}</p>
+    </div>
+
+    <div class="footer">
+      <span class="status">Approved ✅</span>
+      <div class="signature">
+        <div class="signature-line"></div>
+        <span>Federation Secretary</span>
+      </div>
+    </div>
   </div>
-  {% endif %}
-
-  <p class="info"><strong>Status:</strong> Approved ✅</p>
 </body>
 </html>
