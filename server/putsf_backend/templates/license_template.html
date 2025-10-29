@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Membership License</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 40px; }
+    h1 { color: #0066cc; }
+    .info { margin-bottom: 10px; }
+    .photo img { width: 120px; height: 120px; object-fit: cover; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h1>Membership License</h1>
+  <p class="info"><strong>Name:</strong> {{ license.name }}</p>
+  <p class="info"><strong>Aadhar:</strong> {{ license.aadhar_number }}</p>
+  <p class="info"><strong>Phone:</strong> {{ license.phone }}</p>
+  <p class="info"><strong>Address:</strong> {{ license.address }}</p>
+
+  {% if license.photo %}
+  <div class="photo">
+    <img src="{{ license.photo }}" alt="Photo" />
+  </div>
+  {% endif %}
+
+  <p class="info"><strong>Status:</strong> Approved ✅</p>
+</body>
+</html>
