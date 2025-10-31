@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-/* ----------------------- Admin Gallery ----------------------- */
 const AdminGallery = () => {
   const [images, setImages] = useState([]);
   const [title, setTitle] = useState("");
@@ -9,7 +10,6 @@ const AdminGallery = () => {
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [alert, setAlert] = useState(null);
 
   const dropRef = useRef(null);
   const API_URL = `${import.meta.env.VITE_API_BASE_URL}/gallery/images/`;
@@ -20,7 +20,7 @@ const AdminGallery = () => {
       const res = await axios.get(API_URL);
       setImages(res.data);
     } catch (err) {
-      showAlert("Failed to fetch images.", "error");
+      toast.error("❌ Failed to fetch images.");
     }
   };
 
@@ -46,22 +46,11 @@ const AdminGallery = () => {
     };
   }, []);
 
-  /* -------- Alert System -------- */
-  const showAlert = (message, type = "info") => {
-    const colors = {
-      success: "from-[#0033A0] via-[#D62828] to-black text-white",
-      error: "from-red-600 via-[#D62828] to-black text-white",
-      info: "from-blue-600 via-[#0033A0] to-black text-white",
-    };
-    setAlert({ message, color: colors[type] });
-    setTimeout(() => setAlert(null), 3500);
-  };
-
   /* -------- Handle Upload -------- */
   const handleUpload = async (e) => {
     e.preventDefault();
     if (!file || !title) {
-      showAlert("Please provide both title and image.", "error");
+      toast.warn("⚠️ Please provide both title and image.");
       return;
     }
 
@@ -83,42 +72,75 @@ const AdminGallery = () => {
       setPreview(null);
       setProgress(0);
       fetchImages();
-      showAlert("✅ Image uploaded successfully!", "success");
+      toast.success("✅ Image uploaded successfully!");
     } catch (err) {
       console.error(err);
-      showAlert("❌ Upload failed. Please try again.", "error");
+      toast.error("❌ Upload failed. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
+  /* -------- Delete Confirmation with Toastify -------- */
+  const confirmDelete = (id) => {
+    toast.info(
+      <div className="flex flex-col">
+        <p className="mb-2">🗑️ Are you sure you want to delete this image?</p>
+        <div className="flex justify-end gap-2">
+          <button
+            onClick={() => {
+              toast.dismiss();
+              handleDelete(id);
+            }}
+            className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm"
+          >
+            Yes, Delete
+          </button>
+          <button
+            onClick={() => toast.dismiss()}
+            className="bg-gray-300 hover:bg-gray-400 text-black px-3 py-1 rounded text-sm"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>,
+      {
+        position: "top-center",
+        autoClose: false,
+        closeOnClick: false,
+        draggable: false,
+        closeButton: false,
+        className: "text-sm",
+      }
+    );
+  };
+
   /* -------- Handle Delete -------- */
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this image?")) return;
-
-    setImages((prev) => prev.filter((img) => img._id !== id));
     try {
       await axios.delete(`${API_URL}${id}/`);
-      showAlert("🗑️ Image deleted successfully!", "success");
+      setImages((prev) => prev.filter((img) => img._id !== id));
+      toast.success("🗑️ Image deleted successfully!");
     } catch (err) {
       console.error(err);
-      showAlert("Failed to delete image.", "error");
+      toast.error("❌ Failed to delete image.");
       fetchImages();
     }
   };
 
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
-      <h1 className="text-3xl font-bold mb-8 text-gray-800">Admin Gallery</h1>
+      {/* Toast Container */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        closeOnClick
+        pauseOnHover
+        theme="colored"
+      />
 
-      {/* 🔔 Alert Message */}
-      {alert && (
-        <div
-          className={`mb-6 p-4 rounded-xl bg-gradient-to-r ${alert.color} shadow-lg text-center font-semibold transition-all duration-500`}
-        >
-          {alert.message}
-        </div>
-      )}
+      <h1 className="text-3xl font-bold mb-8 text-gray-800">Admin Gallery</h1>
 
       {/* Upload Form */}
       <form
@@ -185,10 +207,9 @@ const AdminGallery = () => {
           <GalleryCard
             key={img._id}
             img={img}
-            onDelete={handleDelete}
+            onDelete={confirmDelete}
             onUpdated={fetchImages}
             API_URL={API_URL}
-            showAlert={showAlert}
           />
         ))}
       </div>
@@ -197,7 +218,7 @@ const AdminGallery = () => {
 };
 
 /* ----------------------- Gallery Card ----------------------- */
-const GalleryCard = ({ img, onDelete, onUpdated, API_URL, showAlert }) => {
+const GalleryCard = ({ img, onDelete, onUpdated, API_URL }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(img.title);
   const [file, setFile] = useState(null);
@@ -213,10 +234,10 @@ const GalleryCard = ({ img, onDelete, onUpdated, API_URL, showAlert }) => {
       });
       setIsEditing(false);
       onUpdated();
-      showAlert("✅ Image updated successfully!", "success");
+      toast.success("✅ Image updated successfully!");
     } catch (err) {
       console.error(err);
-      showAlert("Failed to update image.", "error");
+      toast.error("❌ Failed to update image.");
     }
   };
 

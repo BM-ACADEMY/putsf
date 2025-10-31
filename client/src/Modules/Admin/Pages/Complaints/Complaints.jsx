@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import { HiTrash } from "react-icons/hi";
+import "react-toastify/dist/ReactToastify.css";
 
 const Complaints = () => {
   const [complaints, setComplaints] = useState([]);
@@ -10,7 +11,7 @@ const Complaints = () => {
 
   const API_URL = `${import.meta.env.VITE_API_BASE_URL}/complaints/`;
 
-  // 🔹 Fetch Complaints
+  // 🔹 Fetch all complaints
   const fetchComplaints = async () => {
     try {
       setLoading(true);
@@ -24,27 +25,60 @@ const Complaints = () => {
     } catch (err) {
       console.error(err);
       setError("Failed to load complaints. Please try again.");
+      toast.error("❌ Failed to load complaints!");
     } finally {
       setLoading(false);
     }
   };
 
-  // 🔹 Delete Complaint
+  // 🔹 Delete complaint
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this complaint?")) return;
-
     try {
       await axios.delete(`${API_URL}${id}/`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("admin_access_token")}`,
         },
       });
-      toast.success("Complaint deleted successfully!");
       setComplaints((prev) => prev.filter((item) => item.id !== id));
+      toast.success("✅ Complaint deleted successfully!");
     } catch (err) {
       console.error(err);
-      toast.error("Failed to delete complaint.");
+      toast.error("❌ Failed to delete complaint.");
     }
+  };
+
+  // 🔹 Show confirm toast before deleting
+  const confirmDelete = (id) => {
+    toast.info(
+      <div className="flex flex-col">
+        <p className="mb-2">⚠️ Are you sure you want to delete this complaint?</p>
+        <div className="flex justify-end gap-2">
+          <button
+            onClick={() => {
+              toast.dismiss(); // close toast
+              handleDelete(id);
+            }}
+            className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm"
+          >
+            Yes, Delete
+          </button>
+          <button
+            onClick={() => toast.dismiss()}
+            className="bg-gray-300 hover:bg-gray-400 text-black px-3 py-1 rounded text-sm"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>,
+      {
+        position: "top-center",
+        autoClose: false,
+        closeOnClick: false,
+        draggable: false,
+        closeButton: false,
+        className: "text-sm",
+      }
+    );
   };
 
   useEffect(() => {
@@ -53,6 +87,17 @@ const Complaints = () => {
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
+      {/* ✅ Toast Notification Container */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        pauseOnHover
+        theme="colored"
+      />
+
       {/* Header */}
       <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent mb-6">
         Complaints Management
@@ -87,13 +132,15 @@ const Complaints = () => {
                   <td className="px-4 py-3 text-center">{index + 1}</td>
                   <td className="px-4 py-3">{item.name || "N/A"}</td>
                   <td className="px-4 py-3">{item.phone || "N/A"}</td>
-                  <td className="px-4 py-3 max-w-xs truncate">{item.message}</td>
+                  <td className="px-4 py-3 max-w-xs truncate">
+                    {item.message}
+                  </td>
                   <td className="px-4 py-3 text-center text-sm text-gray-600">
                     {new Date(item.created_at).toLocaleDateString()}
                   </td>
                   <td className="px-4 py-3 text-center">
                     <button
-                      onClick={() => handleDelete(item.id)}
+                      onClick={() => confirmDelete(item.id)}
                       className="p-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors cursor-pointer"
                     >
                       <HiTrash size={18} />

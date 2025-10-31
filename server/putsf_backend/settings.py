@@ -145,6 +145,12 @@ def get_db():
     return _db
 
 
+
+from django.conf import settings as django_settings
+django_settings.get_db = get_db
+
+
+
 # -----------------------------
 # Password Validation
 # -----------------------------
@@ -229,3 +235,7 @@ else:
     SITE_DOMAIN = "http://127.0.0.1:8000"
 
 BASE_URL = SITE_DOMAIN
+
+
+from django.conf import settings as django_settings
+django_settings.get_db = get_db
