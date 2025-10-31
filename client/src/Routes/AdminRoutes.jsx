@@ -13,22 +13,27 @@ import BannerAdmin from "../Modules/Admin/Pages/Banner/Banner.jsx";
 import BlogAdmin from "../Modules/Admin/Pages/Blog/Blog.jsx";
 import LicenseAdmin from "../Modules/Admin/Pages/License/License.jsx";
 
+// ✅ Import Private Route
+import PrivateRoute from "./PrivateRoute.jsx";
+
 const AdminRoutes = () => {
   return (
     <Routes>
-      {/* Public login route */}
+      {/* Public Route */}
       <Route path="login" element={<Login />} />
 
-      {/* Protected admin routes */}
-      <Route element={<AdminLayout />}>
-        <Route path="dashboard" element={<Dashboard />} />
-        <Route path="gallery" element={<Gallery />} />
-        <Route path="banner" element={<BannerAdmin />} />
-        <Route path="blogs" element={<BlogAdmin />} />
-        <Route path="license" element={<LicenseAdmin />} />
+      {/* Protected Admin Routes */}
+      <Route element={<PrivateRoute />}>
+        <Route element={<AdminLayout />}>
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="gallery" element={<Gallery />} />
+          <Route path="banner" element={<BannerAdmin />} />
+          <Route path="blogs" element={<BlogAdmin />} />
+          <Route path="license" element={<LicenseAdmin />} />
 
-        {/* Redirect unknown admin paths to dashboard */}
-        <Route path="*" element={<Navigate to="dashboard" />} />
+          {/* Redirect unknown paths */}
+          
+        </Route>
       </Route>
     </Routes>
   );

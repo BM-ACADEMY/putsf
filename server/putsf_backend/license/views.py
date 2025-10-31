@@ -106,46 +106,41 @@ class LicenseViewSet(viewsets.ViewSet):
 def download_license(request):
     try:
         phone = request.GET.get("phone")
-        print("📞 Received phone:", phone)
+        if not phone:
+            return Response({"error": "Phone required"}, status=400)
 
-        if license_collection is None:
-            print("❌ MongoDB not connected")
-            return Response(
-                {"error": "MongoDB not connected"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
-
-        # 🔍 Fetch license by phone
-        license_doc = license_collection.find_one({"phone": phone, "is_approved": True})
-        print("🔍 License found:", license_doc)
+        license_doc = license_collection.find_one({
+            "phone": phone,
+            "is_approved": True
+        })
 
         if not license_doc:
-            return Response(
-                {"error": "License not found or not approved"},
-                status=status.HTTP_404_NOT_FOUND,
-            )
+            return Response({"error": "Not found or not approved"}, status=404)
 
-        # ✅ Safely convert Mongo ObjectId to string and rename to avoid template underscore issue
+        # FIX 1: Copy _id → id, DO NOT DELETE
         license_doc["id"] = str(license_doc["_id"])
-        del license_doc["_id"]
 
-        # ✅ Render the HTML template
-        html_content = render_to_string("license_template.html", {"license": license_doc})
-        print("🧾 HTML rendered successfully")
+        # FIX 2: Fix photo URL
+        if license_doc.get("photo") and not license_doc["photo"].startswith("http"):
+            license_doc["photo"] = request.build_absolute_uri(license_doc["photo"])
 
-        # ✅ Generate PDF
-        pdf = HTML(string=html_content).write_pdf()
-        print("📄 PDF generated successfully")
+        # Render HTML
+        html_content = render_to_string("license_template.html", {
+            "license": license_doc,
+            "request": request  # Pass request for build_absolute_uri
+        })
 
-        # ✅ Send PDF as downloadable response
-        response = HttpResponse(pdf, content_type="application/pdf")
-        response["Content-Disposition"] = f"attachment; filename=license_{license_doc['name']}.pdf"
-        print("✅ Response ready")
+        # Generate PDF with base_url
+        base_url = request.build_absolute_uri("/")
+        pdf_file = HTML(string=html_content, base_url=base_url).write_pdf()
 
+        # Safe filename
+        name = "".join(c for c in license_doc.get("name", "Member") if c.isalnum() or c in " _-")
+        response = HttpResponse(pdf_file, content_type="application/pdf")
+        response["Content-Disposition"] = f'attachment; filename="PUTSF_{name}.pdf"'
         return response
 
     except Exception as e:
         import traceback
-        print("❗ Exception occurred:", e)
         traceback.print_exc()
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"error": str(e)}, status=500)

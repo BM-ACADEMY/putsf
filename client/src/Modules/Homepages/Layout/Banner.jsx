@@ -28,7 +28,7 @@ const Banner = () => {
 
   if (loading) {
     return (
-      <section className="w-full pt-24 bg-white text-center py-12">
+      <section className="w-full bg-white text-center py-12 mt-[70px]">
         <p className="text-gray-500">Loading banner...</p>
       </section>
     );
@@ -36,7 +36,7 @@ const Banner = () => {
 
   if (error || !banner) {
     return (
-      <section className="w-full pt-24 bg-white text-center py-12">
+      <section className="w-full bg-white text-center py-12 mt-[70px]">
         <p className="text-gray-500">No banner available.</p>
       </section>
     );
@@ -47,9 +47,9 @@ const Banner = () => {
     : `${MEDIA_URL}${banner.image}`;
 
   return (
-    <section className="relative w-full pt-24 overflow-hidden bg-white">
-      {/* 🌄 Banner Image Only */}
-      <div className="relative container mx-auto max-w-7xl px-4 z-10">
+    <section className="relative w-full overflow-hidden bg-white ">
+      {/* 🌄 Banner Image */}
+      <div className=" relative container mx-auto max-w-7xl px-4 z-10">
         <div className="relative overflow-hidden rounded-3xl shadow-2xl border-[6px] border-white mt-6">
           <img
             src={imageSrc}
@@ -57,10 +57,10 @@ const Banner = () => {
             className="w-full h-[320px] md:h-[480px] lg:h-[580px] object-cover transition-transform duration-700 ease-in-out transform hover:scale-105"
           />
 
-          {/* Subtle gradient for text readability */}
+          {/* Gradient overlay for text readability */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
 
-          {/* 🩸 Text Section */}
+          {/* 🩸 Banner Text */}
           <div className="absolute bottom-10 left-8 md:left-14 lg:left-20 text-white max-w-[90%] md:max-w-[60%] lg:max-w-[50%] drop-shadow-2xl">
             <h2 className="text-3xl md:text-5xl lg:text-6xl font-extrabold mb-3 animate-fadeInUp delay-100">
               {banner.title}

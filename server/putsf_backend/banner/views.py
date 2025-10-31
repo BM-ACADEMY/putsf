@@ -14,6 +14,7 @@ class BannerAPIView(APIView):
     parser_classes = (MultiPartParser, FormParser)
 
     def get(self, request, mongo_id=None):
+        """Fetch all banners or a single banner"""
         banners_collection = db["banners"]
         try:
             if mongo_id:
@@ -31,15 +32,12 @@ class BannerAPIView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     def post(self, request):
+        """Upload a new banner image"""
         banners_collection = db["banners"]
         image_file = request.FILES.get("image")
-        title = request.data.get("title")
 
-        if not title or not image_file:
-            return Response({"error": "Title and image are required"}, status=status.HTTP_400_BAD_REQUEST)
-
-        if banners_collection.find_one({"title": title}):
-            return Response({"error": "Banner with this title already exists"}, status=status.HTTP_400_BAD_REQUEST)
+        if not image_file:
+            return Response({"error": "Image is required"}, status=status.HTTP_400_BAD_REQUEST)
 
         media_dir = os.path.join(settings.MEDIA_ROOT, "banner")
         os.makedirs(media_dir, exist_ok=True)
@@ -50,81 +48,67 @@ class BannerAPIView(APIView):
                 for chunk in image_file.chunks():
                     f.write(chunk)
         except Exception as e:
-            return Response({"error": f"Failed to save banner image: {str(e)}"},
+            return Response({"error": f"Failed to save image: {str(e)}"},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         full_url = request.build_absolute_uri(f"/media/banner/{image_file.name}")
 
         data = {
-            "title": title,
             "image_url": full_url,
             "created_at": timezone.now().isoformat()
         }
 
         result = banners_collection.insert_one(data)
         return Response(
-            {"message": "Banner added successfully!", "image_url": full_url, "_id": str(result.inserted_id)},
+            {"message": "Banner uploaded successfully!", "image_url": full_url, "_id": str(result.inserted_id)},
             status=status.HTTP_201_CREATED
         )
 
     def patch(self, request, mongo_id):
-        """
-        PATCH (update) banner by ID (supports title, subtitle, and optional image)
-        """
+        """Update the banner image"""
         banners_collection = db["banners"]
 
         try:
             banner = banners_collection.find_one({"_id": ObjectId(mongo_id)})
             if not banner:
-                return Response({"success": False, "error": "Banner not found"}, status=status.HTTP_404_NOT_FOUND)
+                return Response({"error": "Banner not found"}, status=status.HTTP_404_NOT_FOUND)
 
-            update_data = {}
-            title = request.data.get("title")
-            subtitle = request.data.get("subtitle")
             image_file = request.FILES.get("image")
+            if not image_file:
+                return Response({"error": "No image provided"}, status=status.HTTP_400_BAD_REQUEST)
 
-            if title:
-                update_data["title"] = title
-            if subtitle:
-                update_data["subtitle"] = subtitle
+            # Save new image
+            media_dir = os.path.join(settings.MEDIA_ROOT, "banner")
+            os.makedirs(media_dir, exist_ok=True)
+            file_path = os.path.join(media_dir, image_file.name)
 
-            # Handle new image upload
-            if image_file:
-                media_dir = os.path.join(settings.MEDIA_ROOT, "banner")
-                os.makedirs(media_dir, exist_ok=True)
-                file_path = os.path.join(media_dir, image_file.name)
+            with open(file_path, "wb+") as f:
+                for chunk in image_file.chunks():
+                    f.write(chunk)
 
-                with open(file_path, "wb+") as f:
-                    for chunk in image_file.chunks():
-                        f.write(chunk)
+            full_url = request.build_absolute_uri(f"/media/banner/{image_file.name}")
 
-                full_url = request.build_absolute_uri(f"/media/banner/{image_file.name}")
-                update_data["image_url"] = full_url
+            # Remove old image file
+            old_image_url = banner.get("image_url")
+            if old_image_url and old_image_url != full_url:
+                parsed_path = urlparse(old_image_url).path
+                old_file_path = os.path.join(settings.BASE_DIR, parsed_path.lstrip("/"))
+                if os.path.exists(old_file_path):
+                    os.remove(old_file_path)
 
-                # ✅ Safely remove old image if replaced
-                old_image_url = banner.get("image_url")
-                if old_image_url and old_image_url != full_url:
-                    parsed_path = urlparse(old_image_url).path  # e.g., /media/banner/old.jpg
-                    old_file_path = os.path.join(settings.BASE_DIR, parsed_path.lstrip("/"))
-                    if os.path.exists(old_file_path):
-                        os.remove(old_file_path)
-
-            if not update_data:
-                return Response({"success": False, "error": "No valid fields to update"},
-                                status=status.HTTP_400_BAD_REQUEST)
-
-            banners_collection.update_one({"_id": ObjectId(mongo_id)}, {"$set": update_data})
-            banner.update(update_data)
+            banners_collection.update_one({"_id": ObjectId(mongo_id)}, {"$set": {"image_url": full_url}})
+            banner["image_url"] = full_url
             banner["_id"] = str(banner["_id"])
 
-            return Response({"success": True, "message": "Banner updated successfully", "banner": banner},
+            return Response({"message": "Banner image updated successfully", "banner": banner},
                             status=status.HTTP_200_OK)
 
         except Exception as e:
             print("PATCH ERROR:", e)
-            return Response({"success": False, "error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, mongo_id):
+        """Delete banner and image file"""
         banners_collection = db["banners"]
 
         try:
@@ -134,8 +118,8 @@ class BannerAPIView(APIView):
 
             image_url = banner.get("image_url")
             if image_url:
-                relative_path = image_url.replace(request.build_absolute_uri("/"), "")
-                file_path = os.path.join(settings.BASE_DIR, relative_path)
+                parsed_path = urlparse(image_url).path
+                file_path = os.path.join(settings.BASE_DIR, parsed_path.lstrip("/"))
                 if os.path.exists(file_path):
                     os.remove(file_path)
 

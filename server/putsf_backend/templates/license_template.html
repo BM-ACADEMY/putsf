@@ -2,62 +2,55 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Puducherry Union Territory Student Federation Card</title>
+  <title>PUTSF Membership Card</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
     body {
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #f5faff, #eaf4ff);
+      font-family: "Poppins", sans-serif;
+      background: #f6f8fc;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      margin: 0;
+      min-height: 100vh;
       padding: 20px;
     }
 
-    .license-card {
-      width: 480px;
-      border-radius: 16px;
+    .card {
+      width: 640px;
+      height: 400px;
       background: white;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      border-radius: 14px;
       overflow: hidden;
-      border: 3px solid #004aad; /* Federation Blue */
+      border: 2px solid #0033a0;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
       position: relative;
     }
 
-    /* Header */
+    /* HEADER */
     .header {
-      background: linear-gradient(90deg, #004aad, #007bff);
+      height: 80px;
+      background: linear-gradient(90deg, #0033a0, #d62828);
+      display: flex;
+      align-items: center;
+      padding: 0 25px;
       color: white;
-      text-align: center;
-      padding: 18px;
       position: relative;
     }
 
-    .header h1 {
-      margin: 0;
-      font-size: 1.4rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .header h2 {
-      margin: 4px 0 0;
-      font-size: 0.95rem;
-      font-weight: 500;
-      opacity: 0.95;
-    }
-
-    /* Logo Section */
     .logo {
-      position: absolute;
-      top: 10px;
-      left: 20px;
       width: 60px;
       height: 60px;
+      border-radius: 10px;
+      overflow: hidden;
+      background: white;
+      margin-right: 18px;
+      border: 2px solid rgba(255, 255, 255, 0.5);
     }
 
     .logo img {
@@ -66,137 +59,211 @@
       object-fit: contain;
     }
 
-    /* Content */
+    .header-text h1 {
+      font-size: 18px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      font-weight: 700;
+    }
+
+    .header-text h2 {
+      font-size: 13px;
+      opacity: 0.95;
+      font-weight: 500;
+    }
+
+    /* CONTENT */
     .content {
-      padding: 20px 25px;
+      display: flex;
+      justify-content: space-between;
+      padding: 25px 30px;
+    }
+
+    /* LEFT COLUMN */
+    .left {
+      flex: 1;
+    }
+
+    .photo-box {
+      width: 160px;
+      height: 160px;
+      border: 3px solid #d62828;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 15px;
       position: relative;
     }
 
-    .photo-section {
-      text-align: center;
-      margin-bottom: 15px;
+    .photo-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
-    .photo-section img {
-      width: 120px;
-      height: 120px;
-      border-radius: 12px;
-      object-fit: cover;
-      border: 3px solid #004aad;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    .photo-tag {
+      position: absolute;
+      bottom: 5px;
+      right: 5px;
+      background: #d62828;
+      color: white;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
     }
 
     .info {
-      font-size: 15px;
+      font-size: 13px;
+      line-height: 1.7;
       color: #333;
-      margin: 6px 0;
-      line-height: 1.5;
     }
 
     .info strong {
-      color: #004aad;
+      color: #0033a0;
       display: inline-block;
-      width: 130px;
+      width: 120px;
     }
 
-    /* Footer */
-    .footer {
-      background: #f7fbff;
-      padding: 15px 20px;
-      border-top: 2px solid #cce0ff;
+    /* RIGHT COLUMN */
+    .right {
+      flex: 1;
       display: flex;
-      justify-content: space-between;
+      flex-direction: column;
       align-items: center;
+      justify-content: space-between;
+      text-align: center;
     }
 
-    .footer .status {
-      background: #e6f9ea;
-      color: #0b8a42;
+    .seal {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: #0033a0;
+      color: white;
+      font-weight: 700;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 3px double #ffd700;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .seal-text {
+      font-size: 10px;
       font-weight: 600;
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      border: 1px solid #a4dfb4;
+      color: #0033a0;
+      margin-top: 5px;
     }
 
-    .footer .signature {
+    .signature {
       text-align: right;
-      font-size: 13px;
-      color: #444;
+      font-size: 11px;
+      color: #333;
     }
 
     .signature-line {
       width: 120px;
-      border-top: 1px solid #333;
-      margin-top: 6px;
+      border-top: 1.5px solid #0033a0;
+      margin: 6px auto 3px;
     }
 
-    /* Watermark */
+    /* FOOTER */
+    .footer {
+      position: absolute;
+      bottom: 10px;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      font-size: 8px;
+      color: #0033a0;
+      letter-spacing: 0.7px;
+      opacity: 0.7;
+    }
+
+    /* WATERMARK */
     .watermark {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%) rotate(-30deg);
-      font-size: 3.2rem;
-      font-weight: 700;
-      color: rgba(0, 74, 173, 0.07);
+      font-size: 80px;
+      font-weight: 900;
+      color: rgba(0, 51, 160, 0.08);
       text-transform: uppercase;
-      pointer-events: none;
       user-select: none;
-      white-space: nowrap;
+      pointer-events: none;
     }
 
-    /* Print Styling */
     @media print {
       body {
         background: white;
         padding: 0;
       }
-      .license-card {
+      .card {
         box-shadow: none;
-        border: 2px solid #004aad;
-      }
-      .watermark {
-        opacity: 0.08;
+        border: 1.5px solid #0033a0;
       }
     }
   </style>
 </head>
+
 <body>
-  <div class="license-card">
-    <div class="watermark">PUDUCHERRY U.T. STUDENT FEDERATION</div>
+  <div class="card">
+    <div class="watermark">PUTSF</div>
 
     <div class="header">
       <div class="logo">
-        {% if license.logo %}
-        <img src="{{ license.logo }}" alt="Federation Logo">
-        {% else %}
-        <img src="{{ MEDIA_URL }}default_logo.png" alt="Federation Logo">
-        {% endif %}
+        <img src="/static/default_logo.jpg" alt="PUTSF Logo">
       </div>
-      <h1>Puducherry U.T. Student Federation</h1>
-      <h2>Membership Identification Card</h2>
+      <div class="header-text">
+        <h1>PUDUCHERRY U.T. STUDENT FEDERATION</h1>
+        <h2>Official Membership Identity Card</h2>
+      </div>
     </div>
 
     <div class="content">
-      {% if license.photo %}
-      <div class="photo-section">
-        <img src="{{ license.photo }}" alt="Member Photo" />
-      </div>
-      {% endif %}
+      <!-- LEFT -->
+      <div class="left">
+        <div class="photo-box">
+          {% if license.photo %}
+          <img src="{{ license.photo }}" alt="Member Photo">
+          {% else %}
+          <img src="/static/default_photo.png" alt="No Photo">
+          {% endif %}
+          <div class="photo-tag">PUTSF</div>
+        </div>
 
-      <p class="info"><strong>Member Name:</strong> {{ license.name }}</p>
-      <p class="info"><strong>Aadhar Number:</strong> {{ license.aadhar_number }}</p>
-      <p class="info"><strong>Phone Number:</strong> {{ license.phone }}</p>
-      <p class="info"><strong>Address:</strong> {{ license.address }}</p>
+        <div class="info">
+          <p><strong>Name:</strong> {{ license.name }}</p>
+          <p><strong>Aadhar No:</strong> {{ license.aadhar_number }}</p>
+          <p><strong>Phone:</strong> {{ license.phone }}</p>
+          <p><strong>Address:</strong> {{ license.address }}</p>
+          {% if license.is_approved %}
+          <p><strong>Status:</strong> ✅ Approved</p>
+          {% else %}
+          <p><strong>Status:</strong> ⏳ Pending</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- RIGHT -->
+      <div class="right">
+        <div>
+          <div class="seal">PUTSF</div>
+          <div class="seal-text">Authorized Seal</div>
+        </div>
+
+        <div class="signature">
+          <div class="signature-line"></div>
+          <div>Federation Secretary</div>
+        </div>
+      </div>
     </div>
 
     <div class="footer">
-      <span class="status">Approved ✅</span>
-      <div class="signature">
-        <div class="signature-line"></div>
-        <span>Federation Secretary</span>
-      </div>
+      PUDUCHERRY UNION TERRITORY STUDENT FEDERATION • OFFICIAL DOCUMENT • DO NOT DUPLICATE • VERIFY AT PUTSF.IN
     </div>
   </div>
 </body>

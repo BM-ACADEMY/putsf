@@ -7,28 +7,45 @@ import { motion } from "framer-motion";
 export default function MembershipDownload() {
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [errorMsg, setErrorMsg] = useState("");
 
-  // ✅ Use API base URL from .env (no trailing slash)
   const API_URL = `${import.meta.env.VITE_API_BASE_URL}/license-download`;
 
+  const simulateProgress = () => {
+    let current = 0;
+    const interval = setInterval(() => {
+      current += Math.random() * 15;
+      if (current >= 90) current = 90;
+      setProgress(Math.round(current));
+    }, 200);
+    return interval;
+  };
+
   const handleDownload = async () => {
-    if (!phone.trim()) {
-      toast.warn("Please enter your registered phone number.");
+    const cleanPhone = phone.replace(/\D/g, "");
+
+    // ❌ Validation check
+    if (cleanPhone.length !== 10) {
+      setErrorMsg("Please enter a valid 10-digit phone number.");
+      toast.error("❌ Invalid phone number. Please enter 10 digits.");
       return;
     }
 
+    setErrorMsg("");
+    setLoading(true);
+    setProgress(0);
+    const interval = simulateProgress();
+
     try {
-      setLoading(true);
-
-      // ✅ Send clean phone (remove spaces, special chars)
-      const cleanPhone = phone.replace(/\D/g, "");
-
       const res = await axios.get(`${API_URL}/?phone=${cleanPhone}`, {
-        responseType: "blob", // Important for PDF
+        responseType: "blob",
       });
 
+      clearInterval(interval);
+      setProgress(100);
+
       if (res.status === 200) {
-        // ✅ Create and download file
         const url = window.URL.createObjectURL(new Blob([res.data]));
         const link = document.createElement("a");
         link.href = url;
@@ -39,57 +56,97 @@ export default function MembershipDownload() {
 
         toast.success("🎉 Membership Certificate downloaded successfully!");
       } else {
-        toast.error("❌ Membership not found or not approved yet");
+        toast.error("❌ Membership not found or not approved yet.");
       }
     } catch (error) {
-      console.error("Download error:", error);
-      toast.error("❌ Membership not found or not approved yet");
+      clearInterval(interval);
+      toast.error("❌ Membership not found or not approved yet.");
+      console.error(error);
     } finally {
-      setLoading(false);
+      setTimeout(() => {
+        setLoading(false);
+        setProgress(0);
+      }, 1000);
     }
   };
 
   return (
-    <section className="min-h-[90vh] flex items-center justify-center bg-gradient-to-br from-yellow-50 via-red-50 to-orange-50">
+    <section className="min-h-[90vh] flex items-center justify-center bg-gradient-to-br from-blue-50 via-red-50 to-yellow-50">
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="max-w-md w-full bg-white shadow-2xl rounded-2xl p-8 text-center border-t-8 border-red-600 relative overflow-hidden"
+        className="max-w-md w-full bg-white shadow-2xl rounded-2xl p-8 text-center border-t-8 border-[#D62828] relative overflow-hidden"
       >
-        {/* 🌟 Decorative glowing orbs */}
-        <div className="absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-tr from-yellow-400 to-red-500 rounded-full blur-2xl opacity-30"></div>
-        <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-gradient-to-bl from-red-400 to-yellow-300 rounded-full blur-2xl opacity-30"></div>
+        {/* Glow decorations */}
+        <div className="absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-tr from-[#0033A0] to-[#D62828] rounded-full blur-2xl opacity-30"></div>
+        <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-gradient-to-bl from-[#D62828] to-yellow-400 rounded-full blur-2xl opacity-30"></div>
 
-        <h1 className="text-3xl font-extrabold text-red-700 mb-3">
+        <h1 className="text-3xl font-extrabold text-[#0033A0] mb-3">
           Download Your Membership Certificate
         </h1>
         <p className="text-gray-700 mb-6 text-base md:text-lg">
           Enter your registered phone number to securely download your official{" "}
-          <span className="text-red-600 font-semibold">
-            PUTSF Membership Certificate.
-          </span>
+          <span className="text-[#D62828] font-semibold">
+            PUTSF Membership Certificate
+          </span>.
         </p>
 
+        {/* ✅ Input field */}
         <input
-          type="tel"
-          placeholder="Enter your phone number"
+          type="text"
+          placeholder="Enter your 10-digit phone number"
           value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          className="border-2 border-red-300 focus:border-red-600 outline-none p-3 rounded-lg w-full mb-5 text-center text-gray-800 transition-all duration-300"
+          onChange={(e) => {
+            const onlyNums = e.target.value.replace(/\D/g, "");
+            if (onlyNums.length <= 10) setPhone(onlyNums);
+
+            if (onlyNums.length > 0 && onlyNums.length < 10) {
+              setErrorMsg("Phone number must be 10 digits.");
+            } else {
+              setErrorMsg("");
+            }
+          }}
+          maxLength={10}
+          className={`border-2 ${
+            errorMsg
+              ? "border-red-500 focus:border-red-600"
+              : "border-[#0033A0]/40 focus:border-[#0033A0]"
+          } outline-none p-3 rounded-lg w-full mb-2 text-center text-gray-800 transition-all duration-300`}
         />
 
+        {/* ❌ Error message */}
+        {errorMsg && (
+          <p className="text-red-600 text-sm mb-3 font-medium animate-pulse">
+            {errorMsg}
+          </p>
+        )}
+
+        {/* Progress Bar */}
+        {loading && (
+          <div className="w-full bg-gray-200 rounded-full h-3 mb-5 overflow-hidden relative">
+            <div
+              className="h-3 rounded-full bg-gradient-to-r from-[#0033A0] via-[#D62828] to-[#000000] transition-all duration-200"
+              style={{ width: `${progress}%` }}
+            ></div>
+            <span className="absolute top-0 left-1/2 -translate-x-1/2 text-xs font-semibold text-gray-800 mt-1">
+              {progress}%
+            </span>
+          </div>
+        )}
+
+        {/* Download Button */}
         <button
           onClick={handleDownload}
           disabled={loading}
-          className={`w-full flex items-center justify-center gap-2 py-3 rounded-full text-white font-semibold text-lg transition duration-300 ${
+          className={`w-full flex items-center justify-center gap-2 py-3 rounded-full text-white font-semibold text-lg transition-all duration-300 ${
             loading
               ? "bg-gray-400 cursor-not-allowed"
-              : "bg-gradient-to-r from-red-600 to-yellow-500 hover:scale-[1.03] hover:shadow-xl"
+              : "bg-gradient-to-r from-[#0033A0] via-[#D62828] to-[#000000] hover:scale-[1.03] hover:shadow-xl cursor-pointer"
           }`}
         >
           <FaDownload />
-          {loading ? "Processing..." : "Download Certificate"}
+          {loading ? "Downloading..." : "Download Certificate"}
         </button>
 
         <p className="text-sm text-gray-600 mt-6 italic">

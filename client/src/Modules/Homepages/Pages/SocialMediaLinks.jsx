@@ -2,75 +2,55 @@ import React, { useEffect } from "react";
 
 const SocialMediaLinks = () => {
   useEffect(() => {
+    // === Facebook ===
     const fbScript = document.createElement("script");
     fbScript.src = "https://www.embedista.com/j/fbwidget.js";
     fbScript.async = true;
     document.body.appendChild(fbScript);
 
-    const twitterScript = document.createElement("script");
-    twitterScript.src = "https://platform.twitter.com/widgets.js";
-    twitterScript.async = true;
-    document.body.appendChild(twitterScript);
-
-    const ytScript = document.createElement("script");
-    ytScript.src = "https://www.embedista.com/j/ytchannel.js";
-    ytScript.async = true;
-    document.body.appendChild(ytScript);
+    // === Instagram ===
+    const igScript = document.createElement("script");
+    igScript.src = "https://www.instagram.com/embed.js";
+    igScript.async = true;
+    document.body.appendChild(igScript);
 
     return () => {
       document.body.removeChild(fbScript);
-      document.body.removeChild(twitterScript);
-      document.body.removeChild(ytScript);
+      document.body.removeChild(igScript);
     };
   }, []);
 
-  // 🎨 Brand color map
-  const brandColors = {
-    facebook: { bg: "bg-blue-100", text: "text-blue-700", hover: "hover:bg-blue-600", glow: "hover:shadow-blue-400/50" },
-    instagram: { bg: "bg-pink-100", text: "text-pink-700", hover: "hover:bg-pink-600", glow: "hover:shadow-pink-400/50" },
-    twitter: { bg: "bg-sky-100", text: "text-sky-700", hover: "hover:bg-sky-600", glow: "hover:shadow-sky-400/50" },
-    youtube: { bg: "bg-red-100", text: "text-red-700", hover: "hover:bg-red-600", glow: "hover:shadow-red-400/50" },
-  };
-
-  // 🧩 Reusable social button
-  const SocialButton = ({ href, platform, children }) => {
-    const c = brandColors[platform];
-    return (
-      <a
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={`${c.bg} ${c.text} ${c.hover} ${c.glow} inline-flex items-center justify-center px-6 py-2 mt-4 rounded-full font-semibold transition-all duration-300 shadow-sm hover:text-white hover:shadow-md`}
-      >
-        {children}
-      </a>
-    );
-  };
+  const SocialButton = ({ href, children }) => (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex items-center justify-center px-6 py-2 mt-4 rounded-full font-semibold text-white bg-gradient-to-r from-[#0033A0] via-[#D62828] to-[#000000] shadow-lg hover:opacity-90 hover:scale-105 transition-all duration-300"
+    >
+      {children}
+    </a>
+  );
 
   return (
-    <section className="bg-gray-50 py-16 min-h-screen flex flex-col items-center">
+    <section className="bg-gradient-to-br from-[#0033A0]/10 via-white to-[#D62828]/10 py-16 min-h-screen flex flex-col items-center">
       <div className="max-w-7xl w-full px-6 md:px-12">
-        {/* ===== Header ===== */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-indigo-600 mb-4">
+          <h1 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-[#0033A0] via-[#D62828] to-[#000000] bg-clip-text text-transparent mb-4">
             Follow Us on Social Media
           </h1>
-          <p className="text-gray-600 text-lg md:text-xl">
-            Stay connected with us across all our social platforms.
+          <p className="text-gray-700 text-lg md:text-xl">
+            Stay connected with our movement across every platform — be part of the change 🇮🇳
           </p>
         </div>
 
         {/* ===== Facebook Section ===== */}
-        <div className="bg-white rounded-2xl shadow-lg p-8 mb-16">
-          <h2 className="text-3xl font-semibold text-blue-600 text-center mb-10">
+        <div className="bg-white rounded-3xl shadow-xl p-8 mb-16 border-t-8 border-[#0033A0]/70">
+          <h2 className="text-3xl font-bold text-[#0033A0] text-center mb-10">
             Facebook Pages
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 justify-items-center">
-            {/* Page 1 */}
-            <div className="flex flex-col items-center bg-gray-50 rounded-xl shadow p-6 w-full max-w-md">
-              <h3 className="text-2xl font-semibold text-blue-600 mb-4">
-                Facebook Page 1
-              </h3>
+            <div className="flex flex-col items-center bg-gray-50 rounded-2xl shadow-md p-6 w-full max-w-md">
+              <h3 className="text-2xl font-semibold text-[#0033A0] mb-4">Facebook Page 1</h3>
               <iframe
                 title="Facebook Page 1"
                 frameBorder="0"
@@ -80,19 +60,13 @@ const SocialMediaLinks = () => {
                 className="rounded-lg shadow-md"
                 allow="encrypted-media"
               ></iframe>
-              <SocialButton
-                href="https://www.facebook.com/swaminathan1105"
-                platform="facebook"
-              >
+              <SocialButton href="https://www.facebook.com/swaminathan1105">
                 Visit Facebook
               </SocialButton>
             </div>
 
-            {/* Page 2 */}
-            <div className="flex flex-col items-center bg-gray-50 rounded-xl shadow p-6 w-full max-w-md">
-              <h3 className="text-2xl font-semibold text-blue-600 mb-4">
-                Facebook Page 2
-              </h3>
+            <div className="flex flex-col items-center bg-gray-50 rounded-2xl shadow-md p-6 w-full max-w-md">
+              <h3 className="text-2xl font-semibold text-[#0033A0] mb-4">Facebook Page 2</h3>
               <iframe
                 title="Facebook Page 2"
                 frameBorder="0"
@@ -102,10 +76,7 @@ const SocialMediaLinks = () => {
                 className="rounded-lg shadow-md"
                 allow="encrypted-media"
               ></iframe>
-              <SocialButton
-                href="https://www.facebook.com/saminathan.yvone"
-                platform="facebook"
-              >
+              <SocialButton href="https://www.facebook.com/saminathan.yvone">
                 Visit Facebook
               </SocialButton>
             </div>
@@ -113,74 +84,61 @@ const SocialMediaLinks = () => {
         </div>
 
         {/* ===== Instagram + Twitter ===== */}
-        <div className="bg-white rounded-2xl shadow-lg p-8 mb-16">
-          <h2 className="text-3xl font-semibold text-indigo-600 text-center mb-10">
+        <div className="bg-white rounded-3xl shadow-xl p-8 mb-16 border-t-8 border-[#D62828]/70">
+          <h2 className="text-3xl font-bold text-[#D62828] text-center mb-10">
             Instagram & Twitter
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 justify-items-center">
             {/* Instagram */}
-            <div className="flex flex-col items-center bg-gray-50 rounded-xl shadow p-6 w-full max-w-md">
-              <h3 className="text-2xl font-semibold text-pink-600 mb-4">
-                Instagram Profile
-              </h3>
+            <div className="flex flex-col items-center bg-gray-50 rounded-2xl shadow-md p-6 w-full max-w-md">
+              <h3 className="text-2xl font-semibold text-[#D62828] mb-4">Instagram Profile</h3>
               <iframe
                 title="Instagram Profile"
                 src="https://www.instagram.com/c.s.swamynathan/embed"
                 width="340"
                 height="400"
-                className="rounded-lg shadow-md border border-gray-200"
+                className="rounded-lg shadow-md border border-gray-200 overflow-hidden"
                 allowTransparency="true"
               ></iframe>
-              <SocialButton
-                href="https://www.instagram.com/c.s.swamynathan/?utm_source=qr"
-                platform="instagram"
-              >
+              <SocialButton href="https://www.instagram.com/c.s.swamynathan/">
                 Visit Instagram
               </SocialButton>
             </div>
 
-            {/* Twitter */}
-            <div className="flex flex-col items-center bg-gray-50 rounded-xl shadow p-6 w-full max-w-md">
-              <h3 className="text-2xl font-semibold text-sky-500 mb-4">
-                Twitter (X) Profile
-              </h3>
+            {/* Twitter (Static iframe version for stable look) */}
+            <div className="flex flex-col items-center bg-gray-50 rounded-2xl shadow-md p-6 w-full max-w-md">
+              <h3 className="text-2xl font-semibold text-[#0033A0] mb-4">Twitter (X) Profile</h3>
               <iframe
                 title="Twitter Feed"
                 src="https://twitframe.com/show?url=https://twitter.com/c_pondy"
                 width="340"
                 height="400"
-                className="rounded-lg shadow-md border border-gray-200"
+                frameBorder="0"
+                className="rounded-lg shadow-md border border-gray-200 overflow-hidden"
               ></iframe>
-              <SocialButton href="https://twitter.com/c_pondy" platform="twitter">
-                Visit Twitter
-              </SocialButton>
+              <SocialButton href="https://twitter.com/c_pondy">Visit Twitter</SocialButton>
             </div>
           </div>
         </div>
 
         {/* ===== YouTube ===== */}
-        <div className="bg-white rounded-2xl shadow-lg p-8">
-          <h2 className="text-3xl font-semibold text-red-600 text-center mb-10">
-            YouTube Channel
-          </h2>
-          <div className="flex flex-col items-center bg-gray-50 rounded-xl shadow p-6 w-full max-w-md mx-auto">
-            <h3 className="text-2xl font-semibold text-red-600 mb-4">
-              Swaminathan YouTube Channel
-            </h3>
+        <div className="bg-white rounded-3xl shadow-xl p-8 border-t-8 border-[#000000]/70">
+          <h2 className="text-3xl font-bold text-[#000000] text-center mb-10">YouTube Channel</h2>
+          <div className="flex flex-col items-center bg-gray-50 rounded-2xl shadow-md p-6 w-full max-w-md mx-auto">
+            <h3 className="text-2xl font-semibold text-[#D62828] mb-4">Swaminathan YouTube Channel</h3>
+
             <iframe
+              width="340"
+              height="200"
+              src="https://www.youtube.com/embed?listType=user_uploads&list=swaminathan506"
+              title="YouTube Channel Videos"
               frameBorder="0"
-              src="https://www.youtube.com/subscribe_embed?usegapi=1&channel=https://youtube.com/@swaminathan506"
-              className="mb-6 rounded-md"
-              width="300"
-              height="80"
-              title="YouTube Subscribe Button"
+              className="rounded-lg shadow-md border border-gray-200 overflow-hidden"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
             ></iframe>
-            <SocialButton
-              href="https://youtube.com/@swaminathan506?si=ytinXCskHEJnPz6n"
-              platform="youtube"
-            >
-              Visit YouTube
-            </SocialButton>
+
+            <SocialButton href="https://youtube.com/@swaminathan506">Visit YouTube</SocialButton>
           </div>
         </div>
       </div>

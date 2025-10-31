@@ -1,10 +1,38 @@
 // src/Routes/Routes.jsx
 import React from "react";
-import { HashRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  HashRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+} from "react-router-dom";
+import { useEffect } from "react";
 
-// Import your route modules
+// ──────────────────────────────────────────────
+//  ScrollToTop component (must be inside Router)
+// ──────────────────────────────────────────────
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    // Small timeout gives the new page a chance to render first
+    const timer = setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, [pathname]);
+
+  return null;
+};
+
+// ──────────────────────────────────────────────
+//  Import your pages / route groups
+// ──────────────────────────────────────────────
 import HomepagesRoutes from "./HomepagesRoutes";
 import AdminRoutes from "./AdminRoutes";
+
 import Gallery from "../Modules/Homepages/Pages/Gallery";
 import BlogHome from "../Modules/Homepages/Pages/Blog";
 import Layout from "../Modules/Homepages/Layout/Layout";
@@ -12,21 +40,50 @@ import License from "../Modules/Homepages/Pages/License";
 import LicenseDownload from "../Modules/Homepages/Pages/LicenseDownload";
 import Contact from "../Modules/Homepages/Pages/Contact";
 
-
 const AppRoutes = () => {
   return (
     <Router>
-     <Routes>
-  {/* Public/Homepages routes wrapped in Layout */}
-  <Route 
-    path="/*" 
-    element={
-      <Layout>
-        <HomepagesRoutes />
-      </Layout>
-    } 
-  />
-  {/* ✅ Add License route separately */}
+      {/* ← Scroll to top on every route change */}
+      <ScrollToTop />
+
+      <Routes>
+        {/* ---------- Public / Homepages ---------- */}
+        <Route
+          path="/*"
+          element={
+            <Layout>
+              <HomepagesRoutes />
+            </Layout>
+          }
+        />
+
+        {/* Individual pages that also need Layout */}
+        <Route
+          path="/gallery"
+          element={
+            <Layout>
+              <Gallery />
+            </Layout>
+          }
+        />
+        <Route
+          path="/blog"
+          element={
+            <Layout>
+              <BlogHome />
+            </Layout>
+          }
+        />
+        <Route
+          path="/contact"
+          element={
+            <Layout>
+              <Contact />
+            </Layout>
+          }
+        />
+
+        {/* License pages – you had two identical paths, keep only one */}
         <Route
           path="/license"
           element={
@@ -36,39 +93,20 @@ const AppRoutes = () => {
           }
         />
         <Route
-          path="/license"
+          path="/license/download"
           element={
             <Layout>
-              <LicenseDownload/>
+              <LicenseDownload />
             </Layout>
           }
         />
-  <Route 
-    path="/gallery" 
-    element={
-      <Layout>
-        <Gallery />
-      </Layout>
-    } 
-  />
-  <Route 
-    path="/blog" 
-    element={
-      <Layout>
-        <BlogHome />
-      </Layout>
-    } 
-  />
-  <Route path="contact" element={<Contact />} />
-  
 
-  {/* Admin routes – maybe without Layout if admin has a separate design */}
-  <Route path="/admin/*" element={<AdminRoutes />} />
+        {/* ---------- Admin ---------- */}
+        <Route path="/admin/*" element={<AdminRoutes />} />
 
-  {/* Redirect unknown paths */}
-  <Route path="*" element={<Navigate to="/" />} />
-</Routes>
-
+        {/* ---------- Fallback ---------- */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </Router>
   );
 };

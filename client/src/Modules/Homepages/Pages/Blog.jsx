@@ -1,90 +1,133 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { motion, AnimatePresence } from "framer-motion";
 
 const BlogHome = () => {
   const [blogs, setBlogs] = useState([]);
+  const [expandedId, setExpandedId] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
   const API_URL = `${import.meta.env.VITE_API_BASE_URL}/blog/posts/`;
 
-  // Fetch blog posts from backend
-  const fetchBlogs = async () => {
-    try {
-      const res = await axios.get(API_URL);
-      setBlogs(Array.isArray(res.data) ? res.data : []);
-    } catch (err) {
-      console.error(err);
-      setError("Failed to load blogs.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchBlogs = async () => {
+      try {
+        const res = await axios.get(API_URL);
+        setBlogs(Array.isArray(res.data) ? res.data : []);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load blogs.");
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchBlogs();
   }, []);
 
+  const toggleExpand = (id) => {
+    setExpandedId((prev) => (prev === id ? null : id));
+  };
+
   return (
-    <section className="w-full py-16 bg-gray-50">
-      <div className="container max-w-7xl mx-auto px-4">
-        <h1 className="text-4xl md:text-5xl font-bold mb-12 text-center text-indigo-600">
-          Our Political Insights & Blogs
-        </h1>
+    <section className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-red-50 py-20 md:py-28 ">
+      <div className="absolute inset-0 bg-gradient-to-br from-[#0033A0]/10 via-[#D62828]/10 to-black/10 mix-blend-multiply"></div>
 
-        {/* Loading & Error States */}
-        {loading && (
-          <p className="text-center text-gray-500 text-lg">Loading blogs...</p>
-        )}
-        {error && (
-          <p className="text-center text-red-500 text-lg mb-6">{error}</p>
-        )}
+      <div className="relative max-w-7xl mx-auto px-6 md:px-16 text-center">
+        {/* 🩵 Section Header */}
+        <div className="relative mb-14">
+          <h2 className="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-[#0033A0] via-[#D62828] to-black bg-clip-text text-transparent drop-shadow-md leading-tight">
+            Our Political <span className="text-[#D62828]">Insights</span> & Blogs
+          </h2>
+          <div className="mx-auto mt-4 w-32 h-1.5 bg-gradient-to-r from-[#0033A0] via-[#D62828] to-[#000000] rounded-full shadow-lg"></div>
+          <p className="text-gray-800 text-lg md:text-xl mt-6 max-w-3xl mx-auto leading-relaxed">
+            Discover thoughts, insights, and stories shaping our political vision and
+            social change.
+          </p>
+        </div>
 
-        {/* Blog Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {/* Loading & Error */}
+        {loading && <p className="text-gray-500 text-lg">Loading blogs...</p>}
+        {error && <p className="text-red-600 text-lg mb-6">{error}</p>}
+
+        {/* 📰 Blog Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 relative z-10">
           {blogs.length > 0 ? (
-            blogs.map((blog) => (
-              <div
-                key={blog._id}
-                className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 flex flex-col"
-              >
-                {blog.image_url && (
-                  <img
-                    src={blog.image_url}
-                    alt={blog.title}
-                    loading="lazy"
-                    className="w-full h-56 object-cover transition-transform duration-300 hover:scale-105"
-                  />
-                )}
-                <div className="p-6 flex flex-col flex-1">
-                  <div className="mb-4">
-                    <h2 className="font-semibold text-2xl mb-2 text-indigo-600 hover:text-indigo-700 transition-colors">
+            blogs.map((blog, index) => {
+              const isExpanded = expandedId === blog._id;
+              return (
+                <motion.div
+                  key={blog._id || index}
+                  whileHover={{ scale: 1.03 }}
+                  transition={{ duration: 0.3 }}
+                  className="bg-white border-4 border-transparent hover:border-[#D62828]/60 rounded-3xl shadow-xl hover:shadow-2xl overflow-hidden flex flex-col transition-all duration-300"
+                >
+                  {/* 🖼 Image */}
+                  {blog.image_url && (
+                    <div className="overflow-hidden">
+                      <img
+                        src={blog.image_url}
+                        alt={blog.title}
+                        className="w-full h-56 object-cover transform hover:scale-110 transition duration-700 ease-out"
+                      />
+                    </div>
+                  )}
+
+                  {/* ✍️ Blog Content */}
+                  <div className="p-6 flex flex-col flex-1 text-left">
+                    <h3 className="text-2xl font-bold bg-gradient-to-r from-[#0033A0] to-[#D62828] bg-clip-text text-transparent mb-2">
                       {blog.title}
-                    </h2>
+                    </h3>
+
                     {blog.subtitle && (
-                      <p className="text-gray-600 mb-2">{blog.subtitle}</p>
+                      <p className="text-gray-600 mb-2 italic">{blog.subtitle}</p>
                     )}
-                    <p className="text-gray-700">
-                      {blog.content?.length > 120
-                        ? blog.content.substring(0, 120) + "..."
-                        : blog.content}
-                    </p>
-                  </div>
-                  <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-100">
-                    <div className="text-sm text-gray-500">
-                      {blog.created_at && (
-                        <span>
-                          {new Date(blog.created_at).toLocaleDateString()}
-                        </span>
+
+                    {/* Scrollable Content */}
+                    <AnimatePresence>
+                      {isExpanded ? (
+                        <motion.div
+                          key="expanded"
+                          initial={{ height: 120, opacity: 0 }}
+                          animate={{ height: 200, opacity: 1 }}
+                          exit={{ height: 120, opacity: 0 }}
+                          transition={{ duration: 0.4 }}
+                          className="overflow-y-auto text-gray-700 mb-4 leading-relaxed pr-2 scrollbar-thin scrollbar-thumb-[#D62828]/40 hover:scrollbar-thumb-[#D62828]/60"
+                        >
+                          {blog.content}
+                        </motion.div>
+                      ) : (
+                        <p className="text-gray-700 mb-4 leading-relaxed">
+                          {blog.content?.length > 120
+                            ? blog.content.substring(0, 120) + "..."
+                            : blog.content}
+                        </p>
                       )}
+                    </AnimatePresence>
+
+                    {/* Footer */}
+                    <div className="mt-auto flex justify-between items-center pt-3 border-t border-gray-200">
+                      <span className="text-sm text-gray-500">
+                        {blog.created_at
+                          ? new Date(blog.created_at).toLocaleDateString()
+                          : ""}
+                      </span>
+
+                      <motion.button
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => toggleExpand(blog._id)}
+                        className="text-[#D62828] font-semibold hover:text-[#0033A0] transition"
+                      >
+                        {isExpanded ? "Show Less ↑" : "Read More →"}
+                      </motion.button>
                     </div>
                   </div>
-                </div>
-              </div>
-            ))
+                </motion.div>
+              );
+            })
           ) : (
             !loading && (
-              <p className="text-center text-gray-600 col-span-full">
+              <p className="text-gray-600 text-center col-span-full">
                 No blogs found.
               </p>
             )
