@@ -39,6 +39,7 @@ import Layout from "../Modules/Homepages/Layout/Layout";
 import License from "../Modules/Homepages/Pages/License";
 import LicenseDownload from "../Modules/Homepages/Pages/LicenseDownload";
 import Contact from "../Modules/Homepages/Pages/Contact";
+import Complaint from "../Modules/Homepages/Pages/Complaint";
 
 const AppRoutes = () => {
   return (
@@ -82,6 +83,8 @@ const AppRoutes = () => {
             </Layout>
           }
         />
+        <Route path="/complaint" element={<Complaint />} />  {/* ✅ No Layout */}
+
 
         {/* License pages – you had two identical paths, keep only one */}
         <Route
@@ -100,6 +103,7 @@ const AppRoutes = () => {
             </Layout>
           }
         />
+        
 
         {/* ---------- Admin ---------- */}
         <Route path="/admin/*" element={<AdminRoutes />} />

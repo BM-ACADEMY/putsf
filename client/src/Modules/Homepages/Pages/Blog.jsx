@@ -30,17 +30,18 @@ const BlogHome = () => {
   };
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-red-50 py-20 md:py-28 ">
+    <section className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-red-50 py-16 md:py-24">
+      {/* Overlay gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#0033A0]/10 via-[#D62828]/10 to-black/10 mix-blend-multiply"></div>
 
-      <div className="relative max-w-7xl mx-auto px-6 md:px-16 text-center">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 md:px-12 text-center">
         {/* 🩵 Section Header */}
-        <div className="relative mb-14">
-          <h2 className="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-[#0033A0] via-[#D62828] to-black bg-clip-text text-transparent drop-shadow-md leading-tight">
+        <div className="relative mb-12 md:mb-16">
+          <h2 className="text-3xl sm:text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-[#0033A0] via-[#D62828] to-black bg-clip-text text-transparent leading-tight">
             Our Political <span className="text-[#D62828]">Insights</span> & Blogs
           </h2>
-          <div className="mx-auto mt-4 w-32 h-1.5 bg-gradient-to-r from-[#0033A0] via-[#D62828] to-[#000000] rounded-full shadow-lg"></div>
-          <p className="text-gray-800 text-lg md:text-xl mt-6 max-w-3xl mx-auto leading-relaxed">
+          <div className="mx-auto mt-3 w-24 sm:w-32 h-1.5 bg-gradient-to-r from-[#0033A0] via-[#D62828] to-[#000000] rounded-full shadow-lg"></div>
+          <p className="text-gray-800 text-base sm:text-lg md:text-xl mt-5 max-w-3xl mx-auto leading-relaxed">
             Discover thoughts, insights, and stories shaping our political vision and
             social change.
           </p>
@@ -51,7 +52,7 @@ const BlogHome = () => {
         {error && <p className="text-red-600 text-lg mb-6">{error}</p>}
 
         {/* 📰 Blog Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 relative z-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 relative z-10">
           {blogs.length > 0 ? (
             blogs.map((blog, index) => {
               const isExpanded = expandedId === blog._id;
@@ -60,7 +61,7 @@ const BlogHome = () => {
                   key={blog._id || index}
                   whileHover={{ scale: 1.03 }}
                   transition={{ duration: 0.3 }}
-                  className="bg-white border-4 border-transparent hover:border-[#D62828]/60 rounded-3xl shadow-xl hover:shadow-2xl overflow-hidden flex flex-col transition-all duration-300"
+                  className="bg-white border-2 border-transparent hover:border-[#D62828]/50 rounded-3xl shadow-lg hover:shadow-2xl overflow-hidden flex flex-col transition-all duration-300 cursor-pointer"
                 >
                   {/* 🖼 Image */}
                   {blog.image_url && (
@@ -68,14 +69,14 @@ const BlogHome = () => {
                       <img
                         src={blog.image_url}
                         alt={blog.title}
-                        className="w-full h-56 object-cover transform hover:scale-110 transition duration-700 ease-out"
+                        className="w-full h-52 sm:h-56 md:h-60 object-cover transform hover:scale-110 transition duration-700 ease-out cursor-pointer"
                       />
                     </div>
                   )}
 
                   {/* ✍️ Blog Content */}
-                  <div className="p-6 flex flex-col flex-1 text-left">
-                    <h3 className="text-2xl font-bold bg-gradient-to-r from-[#0033A0] to-[#D62828] bg-clip-text text-transparent mb-2">
+                  <div className="p-5 sm:p-6 flex flex-col flex-1 text-left">
+                    <h3 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-[#0033A0] to-[#D62828] bg-clip-text text-transparent mb-2">
                       {blog.title}
                     </h3>
 
@@ -88,9 +89,9 @@ const BlogHome = () => {
                       {isExpanded ? (
                         <motion.div
                           key="expanded"
-                          initial={{ height: 120, opacity: 0 }}
-                          animate={{ height: 200, opacity: 1 }}
-                          exit={{ height: 120, opacity: 0 }}
+                          initial={{ height: 100, opacity: 0 }}
+                          animate={{ height: 180, opacity: 1 }}
+                          exit={{ height: 100, opacity: 0 }}
                           transition={{ duration: 0.4 }}
                           className="overflow-y-auto text-gray-700 mb-4 leading-relaxed pr-2 scrollbar-thin scrollbar-thumb-[#D62828]/40 hover:scrollbar-thumb-[#D62828]/60"
                         >
@@ -116,7 +117,7 @@ const BlogHome = () => {
                       <motion.button
                         whileTap={{ scale: 0.95 }}
                         onClick={() => toggleExpand(blog._id)}
-                        className="text-[#D62828] font-semibold hover:text-[#0033A0] transition"
+                        className="text-[#D62828] font-semibold hover:text-[#0033A0] transition cursor-pointer"
                       >
                         {isExpanded ? "Show Less ↑" : "Read More →"}
                       </motion.button>

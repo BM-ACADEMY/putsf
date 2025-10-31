@@ -25,7 +25,7 @@ const SocialMediaLinks = () => {
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center justify-center px-6 py-2 mt-4 rounded-full font-semibold text-white bg-gradient-to-r from-[#0033A0] via-[#D62828] to-[#000000] shadow-lg hover:opacity-90 hover:scale-105 transition-all duration-300"
+      className="inline-flex items-center justify-center px-6 py-2 mt-4 rounded-full font-semibold text-white bg-gradient-to-r from-[#0033A0] via-[#D62828] to-[#000000] shadow-lg hover:opacity-90 hover:scale-105 transition-all duration-300 cursor-pointer"
     >
       {children}
     </a>
@@ -50,7 +50,9 @@ const SocialMediaLinks = () => {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 justify-items-center">
             <div className="flex flex-col items-center bg-gray-50 rounded-2xl shadow-md p-6 w-full max-w-md">
-              <h3 className="text-2xl font-semibold text-[#0033A0] mb-4">Facebook Page 1</h3>
+              <h3 className="text-2xl font-semibold text-[#0033A0] mb-4">
+                Facebook Page 1
+              </h3>
               <iframe
                 title="Facebook Page 1"
                 frameBorder="0"
@@ -66,7 +68,9 @@ const SocialMediaLinks = () => {
             </div>
 
             <div className="flex flex-col items-center bg-gray-50 rounded-2xl shadow-md p-6 w-full max-w-md">
-              <h3 className="text-2xl font-semibold text-[#0033A0] mb-4">Facebook Page 2</h3>
+              <h3 className="text-2xl font-semibold text-[#0033A0] mb-4">
+                Facebook Page 2
+              </h3>
               <iframe
                 title="Facebook Page 2"
                 frameBorder="0"
@@ -83,64 +87,68 @@ const SocialMediaLinks = () => {
           </div>
         </div>
 
-        {/* ===== Instagram + Twitter ===== */}
+        {/* ===== Instagram Section ===== */}
         <div className="bg-white rounded-3xl shadow-xl p-8 mb-16 border-t-8 border-[#D62828]/70">
           <h2 className="text-3xl font-bold text-[#D62828] text-center mb-10">
-            Instagram & Twitter
+            Instagram
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 justify-items-center">
-            {/* Instagram */}
-            <div className="flex flex-col items-center bg-gray-50 rounded-2xl shadow-md p-6 w-full max-w-md">
-              <h3 className="text-2xl font-semibold text-[#D62828] mb-4">Instagram Profile</h3>
-              <iframe
-                title="Instagram Profile"
-                src="https://www.instagram.com/c.s.swamynathan/embed"
-                width="340"
-                height="400"
-                className="rounded-lg shadow-md border border-gray-200 overflow-hidden"
-                allowTransparency="true"
-              ></iframe>
-              <SocialButton href="https://www.instagram.com/c.s.swamynathan/">
-                Visit Instagram
-              </SocialButton>
-            </div>
-
-            {/* Twitter (Static iframe version for stable look) */}
-            <div className="flex flex-col items-center bg-gray-50 rounded-2xl shadow-md p-6 w-full max-w-md">
-              <h3 className="text-2xl font-semibold text-[#0033A0] mb-4">Twitter (X) Profile</h3>
-              <iframe
-                title="Twitter Feed"
-                src="https://twitframe.com/show?url=https://twitter.com/c_pondy"
-                width="340"
-                height="400"
-                frameBorder="0"
-                className="rounded-lg shadow-md border border-gray-200 overflow-hidden"
-              ></iframe>
-              <SocialButton href="https://twitter.com/c_pondy">Visit Twitter</SocialButton>
-            </div>
-          </div>
-        </div>
-
-        {/* ===== YouTube ===== */}
-        <div className="bg-white rounded-3xl shadow-xl p-8 border-t-8 border-[#000000]/70">
-          <h2 className="text-3xl font-bold text-[#000000] text-center mb-10">YouTube Channel</h2>
           <div className="flex flex-col items-center bg-gray-50 rounded-2xl shadow-md p-6 w-full max-w-md mx-auto">
-            <h3 className="text-2xl font-semibold text-[#D62828] mb-4">Swaminathan YouTube Channel</h3>
-
+            <h3 className="text-2xl font-semibold text-[#D62828] mb-4">
+              Instagram Profile
+            </h3>
             <iframe
+              title="Instagram Profile"
+              src="https://www.instagram.com/c.s.swamynathan/embed"
               width="340"
-              height="200"
-              src="https://www.youtube.com/embed?listType=user_uploads&list=swaminathan506"
-              title="YouTube Channel Videos"
-              frameBorder="0"
+              height="400"
               className="rounded-lg shadow-md border border-gray-200 overflow-hidden"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
+              allowTransparency="true"
             ></iframe>
-
-            <SocialButton href="https://youtube.com/@swaminathan506">Visit YouTube</SocialButton>
+            <SocialButton href="https://www.instagram.com/c.s.swamynathan/">
+              Visit Instagram
+            </SocialButton>
           </div>
         </div>
+
+        {/* ===== YouTube & Twitter Buttons Section ===== */}
+<div className="bg-white rounded-3xl shadow-xl p-8 border-t-8 border-[#000000]/70">
+  <h2 className="text-3xl font-bold text-[#D62828] text-center mb-10">
+    YouTube & Twitter
+  </h2>
+
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-10 justify-items-center">
+    {/* 🎥 YouTube */}
+    <div className="flex flex-col items-center bg-gray-50 rounded-2xl shadow-md p-8 w-full max-w-md">
+      <h3 className="text-2xl font-semibold text-[#D62828] mb-6">
+        Swaminathan YouTube Channel
+      </h3>
+      <a
+        href="https://www.youtube.com/@swaminathan506"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center justify-center px-8 py-3 rounded-full font-semibold text-white bg-gradient-to-r from-[#0033A0] via-[#D62828] to-[#000000] shadow-lg hover:opacity-90 hover:scale-105 transition-all duration-300 cursor-pointer"
+      >
+        Visit YouTube
+      </a>
+    </div>
+
+    {/* 🕊 Twitter (X) */}
+    <div className="flex flex-col items-center bg-gray-50 rounded-2xl shadow-md p-8 w-full max-w-md">
+      <h3 className="text-2xl font-semibold text-[#0033A0] mb-6">
+        Twitter (X) Profile
+      </h3>
+      <a
+        href="https://x.com/c_pondy?t=kakIyholWlGDvDTB5xGFqQ&s=09"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center justify-center px-8 py-3 rounded-full font-semibold text-white bg-gradient-to-r from-[#0033A0] via-[#D62828] to-[#000000] shadow-lg hover:opacity-90 hover:scale-105 transition-all duration-300 cursor-pointer"
+      >
+        Visit Twitter
+      </a>
+    </div>
+  </div>
+</div>
+
       </div>
     </section>
   );

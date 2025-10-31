@@ -14,7 +14,7 @@ const Breadcrumbs = () => {
       <ol className="flex flex-wrap items-center space-x-2">
         {/* Home Link */}
         <li>
-          <Link to="/admin/dashboard" className="text-blue-600 hover:underline">
+          <Link to="/admin/banner" className="text-blue-600 hover:underline">
             Home
           </Link>
         </li>

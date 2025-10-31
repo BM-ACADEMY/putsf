@@ -52,7 +52,7 @@ const HomeGallery = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-[#0033A0] via-[#D62828] to-black bg-clip-text text-transparent drop-shadow-md leading-tight">
+          <h2 className="text-4xl p-2   md:text-6xl font-extrabold bg-gradient-to-r  from-[#0033A0] via-[#D62828] to-black bg-clip-text text-transparent drop-shadow-md leading-tight ">
             Our <span className="text-[#D62828]">Gallery</span> Highlights
           </h2>
           <div className="mx-auto mt-4 w-32 h-1.5 bg-gradient-to-r from-[#0033A0] via-[#D62828] to-[#000000] rounded-full shadow-lg"></div>

@@ -12,6 +12,7 @@ urlpatterns = [
     path("api/", include("putsf_backend.banner.urls")),
     path("api/blog/", include("putsf_backend.blog.urls")),
     path('api/', include('putsf_backend.license.urls')),
+    path("api/", include("putsf_backend.complaints.urls")),
     ]
 
 if settings.DEBUG:

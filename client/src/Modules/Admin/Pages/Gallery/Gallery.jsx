@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 
+/* ----------------------- Admin Gallery ----------------------- */
 const AdminGallery = () => {
   const [images, setImages] = useState([]);
   const [title, setTitle] = useState("");
@@ -8,18 +9,18 @@ const AdminGallery = () => {
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [error, setError] = useState("");
+  const [alert, setAlert] = useState(null);
 
   const dropRef = useRef(null);
   const API_URL = `${import.meta.env.VITE_API_BASE_URL}/gallery/images/`;
 
+  /* -------- Fetch all images -------- */
   const fetchImages = async () => {
     try {
       const res = await axios.get(API_URL);
       setImages(res.data);
     } catch (err) {
-      console.error(err);
-      setError("Failed to fetch images.");
+      showAlert("Failed to fetch images.", "error");
     }
   };
 
@@ -27,6 +28,7 @@ const AdminGallery = () => {
     fetchImages();
   }, []);
 
+  /* -------- Drag & Drop -------- */
   useEffect(() => {
     const div = dropRef.current;
     const handleDrop = (e) => {
@@ -44,21 +46,26 @@ const AdminGallery = () => {
     };
   }, []);
 
-  const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
-    setFile(selectedFile);
-    if (selectedFile) setPreview(URL.createObjectURL(selectedFile));
-    else setPreview(null);
+  /* -------- Alert System -------- */
+  const showAlert = (message, type = "info") => {
+    const colors = {
+      success: "from-[#0033A0] via-[#D62828] to-black text-white",
+      error: "from-red-600 via-[#D62828] to-black text-white",
+      info: "from-blue-600 via-[#0033A0] to-black text-white",
+    };
+    setAlert({ message, color: colors[type] });
+    setTimeout(() => setAlert(null), 3500);
   };
 
+  /* -------- Handle Upload -------- */
   const handleUpload = async (e) => {
     e.preventDefault();
     if (!file || !title) {
-      setError("Provide title and image.");
+      showAlert("Please provide both title and image.", "error");
       return;
     }
+
     setLoading(true);
-    setError("");
     setProgress(0);
 
     const formData = new FormData();
@@ -76,22 +83,26 @@ const AdminGallery = () => {
       setPreview(null);
       setProgress(0);
       fetchImages();
+      showAlert("✅ Image uploaded successfully!", "success");
     } catch (err) {
       console.error(err);
-      setError("Upload failed.");
+      showAlert("❌ Upload failed. Please try again.", "error");
     } finally {
       setLoading(false);
     }
   };
 
+  /* -------- Handle Delete -------- */
   const handleDelete = async (id) => {
-    if (!window.confirm("Delete this image?")) return;
+    if (!window.confirm("Are you sure you want to delete this image?")) return;
+
     setImages((prev) => prev.filter((img) => img._id !== id));
     try {
       await axios.delete(`${API_URL}${id}/`);
+      showAlert("🗑️ Image deleted successfully!", "success");
     } catch (err) {
       console.error(err);
-      setError("Failed to delete image.");
+      showAlert("Failed to delete image.", "error");
       fetchImages();
     }
   };
@@ -99,7 +110,15 @@ const AdminGallery = () => {
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
       <h1 className="text-3xl font-bold mb-8 text-gray-800">Admin Gallery</h1>
-      {error && <div className="mb-4 text-red-600 font-medium">{error}</div>}
+
+      {/* 🔔 Alert Message */}
+      {alert && (
+        <div
+          className={`mb-6 p-4 rounded-xl bg-gradient-to-r ${alert.color} shadow-lg text-center font-semibold transition-all duration-500`}
+        >
+          {alert.message}
+        </div>
+      )}
 
       {/* Upload Form */}
       <form
@@ -111,16 +130,20 @@ const AdminGallery = () => {
           placeholder="Image Title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="border p-3 rounded-lg flex-1 shadow-sm focus:ring-2 focus:ring-blue-400 focus:outline-none"
+          className="border p-3 rounded-lg flex-1 shadow-sm focus:ring-2 focus:ring-[#D62828] focus:outline-none"
         />
         <div
           ref={dropRef}
-          className="border-2 border-dashed border-gray-300 p-4 rounded-lg w-full md:w-auto text-center cursor-pointer hover:border-blue-400 hover:bg-gray-100 transition"
+          className="border-2 border-dashed border-gray-300 p-4 rounded-lg w-full md:w-auto text-center cursor-pointer hover:border-[#0033A0] hover:bg-gray-100 transition"
         >
           <input
             type="file"
             accept="image/*"
-            onChange={handleFileChange}
+            onChange={(e) => {
+              const selected = e.target.files[0];
+              setFile(selected);
+              setPreview(selected ? URL.createObjectURL(selected) : null);
+            }}
             className="hidden"
             id="fileInput"
           />
@@ -131,21 +154,23 @@ const AdminGallery = () => {
         <button
           type="submit"
           disabled={loading}
-          className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition font-semibold"
+          className="bg-gradient-to-r from-[#0033A0] via-[#D62828] to-[#000000] text-white px-6 py-3 rounded-lg shadow-md hover:opacity-90 transition font-semibold"
         >
           {loading ? "Uploading..." : "Upload"}
         </button>
       </form>
 
+      {/* Progress Bar */}
       {loading && progress > 0 && (
         <div className="w-full bg-gray-200 h-2 rounded mb-4 overflow-hidden">
           <div
-            className="bg-blue-600 h-2 rounded"
+            className="bg-gradient-to-r from-[#0033A0] via-[#D62828] to-[#000000] h-2 rounded"
             style={{ width: `${progress}%` }}
           ></div>
         </div>
       )}
 
+      {/* Preview */}
       {preview && (
         <div className="mb-6 flex justify-center">
           <div className="border rounded-lg overflow-hidden shadow-md">
@@ -163,6 +188,7 @@ const AdminGallery = () => {
             onDelete={handleDelete}
             onUpdated={fetchImages}
             API_URL={API_URL}
+            showAlert={showAlert}
           />
         ))}
       </div>
@@ -170,7 +196,8 @@ const AdminGallery = () => {
   );
 };
 
-const GalleryCard = ({ img, onDelete, onUpdated, API_URL }) => {
+/* ----------------------- Gallery Card ----------------------- */
+const GalleryCard = ({ img, onDelete, onUpdated, API_URL, showAlert }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(img.title);
   const [file, setFile] = useState(null);
@@ -186,14 +213,15 @@ const GalleryCard = ({ img, onDelete, onUpdated, API_URL }) => {
       });
       setIsEditing(false);
       onUpdated();
+      showAlert("✅ Image updated successfully!", "success");
     } catch (err) {
       console.error(err);
-      alert("Failed to update image.");
+      showAlert("Failed to update image.", "error");
     }
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+    <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition duration-300">
       <img src={preview} alt={title} className="w-full h-48 object-cover" />
       <div className="p-4 space-y-2">
         {isEditing ? (
@@ -217,7 +245,7 @@ const GalleryCard = ({ img, onDelete, onUpdated, API_URL }) => {
             <div className="flex justify-end gap-2">
               <button
                 onClick={handleUpdate}
-                className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
+                className="bg-gradient-to-r from-[#0033A0] via-[#D62828] to-black text-white px-3 py-1 rounded hover:opacity-90"
               >
                 Save
               </button>

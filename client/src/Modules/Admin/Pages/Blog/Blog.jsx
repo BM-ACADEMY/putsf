@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { ToastContainer, toast, Slide } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { motion, AnimatePresence } from "framer-motion";
 
 const BlogAdmin = () => {
   const API_URL = `${import.meta.env.VITE_API_BASE_URL}/blog/posts/`;
@@ -17,6 +20,7 @@ const BlogAdmin = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState(null); // For custom delete alert
 
   /* ---------------- Fetch Blogs ---------------- */
   useEffect(() => {
@@ -31,6 +35,7 @@ const BlogAdmin = () => {
     } catch (err) {
       setError("Failed to load blogs");
       setLoading(false);
+      toast.error("❌ Failed to load blogs", { className: "toast-error" });
     }
   };
 
@@ -60,17 +65,17 @@ const BlogAdmin = () => {
         await axios.patch(`${API_URL}${form._id}/`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
-        alert("Blog updated successfully!");
+        toast.success("✅ Blog updated successfully!", { className: "toast-success" });
       } else {
         await axios.post(API_URL, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
-        alert("Blog created successfully!");
+        toast.success("✅ Blog created successfully!", { className: "toast-success" });
       }
       resetForm();
       fetchBlogs();
     } catch (err) {
-      alert("Error saving blog");
+      toast.error("❌ Error saving blog", { className: "toast-error" });
       console.error(err);
     }
   };
@@ -86,39 +91,73 @@ const BlogAdmin = () => {
     });
     setPreview(blog.image_url);
     setIsEditing(true);
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    toast.info("✏️ Edit mode activated", { className: "toast-info" });
   };
 
   /* ---------------- Delete Blog ---------------- */
-  const handleDelete = async (id) => {
-    if (!confirm("Are you sure you want to delete this blog?")) return;
+  const confirmDelete = (blog) => {
+    setDeleteTarget(blog);
+  };
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
     try {
-      await axios.delete(`${API_URL}${id}/`);
+      await axios.delete(`${API_URL}${deleteTarget._id}/`);
       fetchBlogs();
+      setDeleteTarget(null);
+      toast.success("🗑️ Blog deleted successfully!", { className: "toast-success" });
     } catch (err) {
       console.error(err);
-      alert("Failed to delete blog");
+      toast.error("❌ Failed to delete blog", { className: "toast-error" });
     }
   };
 
-  /* ---------------- Reset Form ---------------- */
   const resetForm = () => {
-    setForm({
-      _id: "",
-      title: "",
-      subtitle: "",
-      content: "",
-      image: null,
-    });
+    setForm({ _id: "", title: "", subtitle: "", content: "", image: null });
     setPreview(null);
     setIsEditing(false);
   };
 
-  /* ---------------- UI ---------------- */
   if (loading) return <p className="text-center mt-10 text-gray-500">Loading...</p>;
   if (error) return <p className="text-center mt-10 text-red-500">{error}</p>;
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
+      {/* 🟩 Toast Container */}
+      <ToastContainer
+        position="top-right"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+        transition={Slide}
+      />
+
+      {/* 🟦 Toast Styles */}
+      <style>{`
+        .Toastify__toast {
+          font-weight: 600;
+          border-radius: 10px;
+          box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+        }
+        .toast-success {
+          background: linear-gradient(to right, #0033A0, #000000);
+          color: #fff;
+        }
+        .toast-error {
+          background: linear-gradient(to right, #D62828, #000000);
+          color: #fff;
+        }
+        .toast-info {
+          background: linear-gradient(to right, #0033A0, #D62828);
+          color: #fff;
+        }
+      `}</style>
+
+      {/* Form Section */}
       <div className="max-w-5xl mx-auto bg-white p-6 rounded-xl shadow-md">
         <h2 className="text-2xl font-semibold text-gray-800 mb-4">
           {isEditing ? "Edit Blog Post" : "Add New Blog Post"}
@@ -171,7 +210,7 @@ const BlogAdmin = () => {
           <div className="flex gap-3">
             <button
               type="submit"
-              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+              className="bg-gradient-to-r from-[#0033A0] via-[#D62828] to-[#000000] text-white px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition"
             >
               {isEditing ? "Update" : "Create"}
             </button>
@@ -208,13 +247,13 @@ const BlogAdmin = () => {
               <div className="flex gap-3 mt-4">
                 <button
                   onClick={() => handleEdit(blog)}
-                  className="px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  className="px-3 py-1 bg-gradient-to-r from-[#0033A0] via-[#D62828] to-black text-white rounded-lg hover:opacity-90 transition"
                 >
                   Edit
                 </button>
                 <button
-                  onClick={() => handleDelete(blog._id)}
-                  className="px-3 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                  onClick={() => confirmDelete(blog)}
+                  className="px-3 py-1 bg-gradient-to-r from-[#D62828] to-black text-white rounded-lg hover:opacity-90 transition"
                 >
                   Delete
                 </button>
@@ -223,6 +262,48 @@ const BlogAdmin = () => {
           ))}
         </div>
       </div>
+
+      {/* 🟥 Custom Delete Confirmation Popup */}
+      <AnimatePresence>
+        {deleteTarget && (
+          <motion.div
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="bg-white p-6 rounded-xl shadow-xl w-96 text-center"
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+            >
+              <h3 className="text-xl font-bold text-[#D62828] mb-3">⚠️ Delete Confirmation</h3>
+              <p className="text-gray-700 mb-5">
+                Are you sure you want to delete <br />
+                <span className="font-semibold text-[#0033A0]">
+                  “{deleteTarget.title}”
+                </span>
+                ?
+              </p>
+              <div className="flex justify-center gap-4">
+                <button
+                  onClick={handleDelete}
+                  className="px-5 py-2 bg-gradient-to-r from-[#D62828] to-[#000000] text-white rounded-lg font-semibold hover:opacity-90"
+                >
+                  Yes, Delete
+                </button>
+                <button
+                  onClick={() => setDeleteTarget(null)}
+                  className="px-5 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 font-semibold"
+                >
+                  Cancel
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

@@ -9,6 +9,7 @@ export default function MembershipDownload() {
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [errorMsg, setErrorMsg] = useState("");
+  const [successMsg, setSuccessMsg] = useState(""); // ✅ New success message state
 
   const API_URL = `${import.meta.env.VITE_API_BASE_URL}/license-download`;
 
@@ -33,6 +34,7 @@ export default function MembershipDownload() {
     }
 
     setErrorMsg("");
+    setSuccessMsg(""); // Reset any previous success message
     setLoading(true);
     setProgress(0);
     const interval = simulateProgress();
@@ -40,12 +42,17 @@ export default function MembershipDownload() {
     try {
       const res = await axios.get(`${API_URL}/?phone=${cleanPhone}`, {
         responseType: "blob",
+        validateStatus: () => true, // ✅ Allows manual handling of non-200 responses
       });
 
       clearInterval(interval);
       setProgress(100);
 
-      if (res.status === 200) {
+      // ✅ Handle response status manually
+      if (res.status === 404 || res.status === 400) {
+        setErrorMsg("Invalid credentials. Please check your phone number.");
+        toast.error("❌ Invalid credentials. Please check your phone number.");
+      } else if (res.status === 200) {
         const url = window.URL.createObjectURL(new Blob([res.data]));
         const link = document.createElement("a");
         link.href = url;
@@ -55,13 +62,16 @@ export default function MembershipDownload() {
         document.body.removeChild(link);
 
         toast.success("🎉 Membership Certificate downloaded successfully!");
+        setSuccessMsg("✅ Download completed successfully!"); // ✅ Show message below button
       } else {
+        setErrorMsg("Membership not found or not approved yet.");
         toast.error("❌ Membership not found or not approved yet.");
       }
     } catch (error) {
       clearInterval(interval);
-      toast.error("❌ Membership not found or not approved yet.");
       console.error(error);
+      setErrorMsg("Something went wrong. Please try again later.");
+      toast.error("❌ Something went wrong. Please try again later.");
     } finally {
       setTimeout(() => {
         setLoading(false);
@@ -103,6 +113,7 @@ export default function MembershipDownload() {
 
             if (onlyNums.length > 0 && onlyNums.length < 10) {
               setErrorMsg("Phone number must be 10 digits.");
+              setSuccessMsg("");
             } else {
               setErrorMsg("");
             }
@@ -115,7 +126,7 @@ export default function MembershipDownload() {
           } outline-none p-3 rounded-lg w-full mb-2 text-center text-gray-800 transition-all duration-300`}
         />
 
-        {/* ❌ Error message */}
+        {/* ❌ Error message (includes invalid credentials) */}
         {errorMsg && (
           <p className="text-red-600 text-sm mb-3 font-medium animate-pulse">
             {errorMsg}
@@ -148,6 +159,13 @@ export default function MembershipDownload() {
           <FaDownload />
           {loading ? "Downloading..." : "Download Certificate"}
         </button>
+
+        {/* ✅ Success Message */}
+        {successMsg && (
+          <p className="text-green-600 font-semibold mt-4 animate-pulse">
+            {successMsg}
+          </p>
+        )}
 
         <p className="text-sm text-gray-600 mt-6 italic">
           “For our union to grow — our students must rise.” 🎓

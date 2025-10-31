@@ -1,92 +1,111 @@
 import React, { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   HiMenu,
   HiX,
-  HiHome,
   HiPhotograph,
   HiNewspaper,
   HiViewGrid,
   HiClipboardList,
+  HiLogout,
+  HiOutlineExclamationCircle, // ✅ New icon for Complaints
 } from "react-icons/hi";
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
 
   const links = [
     { to: "/admin/banner", label: "Banner", icon: <HiViewGrid /> },
     { to: "/admin/gallery", label: "Gallery", icon: <HiPhotograph /> },
     { to: "/admin/blogs", label: "Blogs", icon: <HiNewspaper /> },
     { to: "/admin/license", label: "Memberships", icon: <HiClipboardList /> },
+    { to: "/admin/complaints", label: "Complaints", icon: <HiOutlineExclamationCircle /> }, // ✅ Added Complaints
   ];
+
+  const handleLogout = () => {
+    if (window.confirm("Are you sure you want to logout?")) {
+      localStorage.removeItem("admin_access_token");
+      localStorage.removeItem("admin_refresh_token");
+      navigate("/admin/login", { replace: true });
+    }
+  };
 
   return (
     <>
-      {/* Mobile Menu Button */}
+      {/* 📱 Mobile Menu Button */}
       <div className="md:hidden fixed top-4 left-4 z-50">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="bg-gray-100 text-gray-800 p-2 rounded shadow focus:outline-none"
+          className="p-2 bg-gray-800 text-white rounded-md hover:bg-gray-700 transition-colors"
         >
           {isOpen ? <HiX size={24} /> : <HiMenu size={24} />}
         </button>
       </div>
 
-      {/* Sidebar */}
+      {/* 🧭 Sidebar */}
       <aside
-        className={`fixed top-0 left-0 h-screen w-64 bg-gray-900 text-white shadow-xl
+        className={`fixed inset-y-0 left-0 w-64 bg-gray-900 text-white flex flex-col justify-between
           transform ${isOpen ? "translate-x-0" : "-translate-x-full"}
-          transition-transform duration-300 ease-in-out
-          md:translate-x-0 md:fixed z-40`}
+          md:translate-x-0 transition-transform duration-300 ease-in-out z-40`}
       >
         {/* Header */}
-        <div className="bg-gradient-to-r from-red-700 via-red-800 to-black p-4 text-center border-b border-gray-700">
-          <h1 className="text-2xl font-extrabold tracking-wide uppercase">
-            Admin Panel
+        <div className="p-5 border-b border-gray-800 text-center">
+          <h1 className="text-xl font-bold tracking-wide text-white">
+            PUTSF Admin
           </h1>
-          <p className="text-sm text-gray-300">PUTSF Management</p>
+          <p className="text-xs text-gray-400 mt-1">Management Panel</p>
         </div>
 
         {/* Navigation */}
-        <nav className="mt-4 flex flex-col justify-between h-[calc(100%-5rem)]">
-          <ul className="space-y-1">
+        <nav className="flex-1 overflow-y-auto p-4">
+          <ul className="space-y-2">
             {links.map((link) => (
               <li key={link.to}>
                 <NavLink
                   to={link.to}
+                  end
                   onClick={() => setIsOpen(false)}
                   className={({ isActive }) =>
-                    `flex items-center gap-3 px-4 py-2 rounded-md mx-2 transition-colors duration-200
-                     ${
-                       isActive
-                         ? "bg-red-700 text-white"
-                         : "text-gray-300 hover:bg-gray-800 hover:text-white"
-                     }`
+                    `flex items-center gap-3 px-4 py-2 rounded-md text-sm font-medium transition-all cursor-pointer
+                    ${
+                      isActive
+                        ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-md"
+                        : "text-gray-300 hover:bg-gray-800 hover:text-white"
+                    }`
                   }
                 >
                   <span className="text-lg">{link.icon}</span>
-                  <span className="font-medium">{link.label}</span>
+                  <span>{link.label}</span>
                 </NavLink>
               </li>
             ))}
           </ul>
-
-          {/* Footer */}
-          <div className="text-sm text-gray-400 text-center p-4 border-t border-gray-700">
-            © {new Date().getFullYear()} <br />
-            <span className="text-red-500 font-semibold">PUTSF</span> Admin
-            <br />
-            All Rights Reserved.
-          </div>
         </nav>
+
+        {/* 🔻 Logout Button */}
+        <div className="p-4 border-t border-gray-800">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm font-semibold shadow-md transition-all duration-200 active:scale-95 cursor-pointer"
+          >
+            <HiLogout className="text-lg" />
+            Logout
+          </button>
+        </div>
+
+        {/* Footer */}
+        <div className="p-3 text-center text-xs text-gray-500 border-t border-gray-800 bg-gray-900">
+          © {new Date().getFullYear()} PUTSF
+        </div>
       </aside>
 
-      {/* Mobile Overlay */}
+      {/* Overlay for mobile */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black opacity-40 z-30 md:hidden"
+          className="fixed inset-0 bg-black/50 z-30 md:hidden"
           onClick={() => setIsOpen(false)}
-        ></div>
+        />
       )}
     </>
   );
