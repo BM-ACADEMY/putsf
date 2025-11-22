@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
+import API from "../../../../api"; // ✅ use your api.js file
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -12,12 +12,12 @@ const AdminGallery = () => {
   const [progress, setProgress] = useState(0);
 
   const dropRef = useRef(null);
-  const API_URL = `${import.meta.env.VITE_API_BASE_URL}/gallery/images/`;
+  const API_URL = `/gallery/images/`; // ✅ Base handled by API instance
 
   /* -------- Fetch all images -------- */
   const fetchImages = async () => {
     try {
-      const res = await axios.get(API_URL);
+      const res = await API.get(API_URL);
       setImages(res.data);
     } catch (err) {
       toast.error("❌ Failed to fetch images.");
@@ -62,7 +62,7 @@ const AdminGallery = () => {
     formData.append("image", file);
 
     try {
-      await axios.post(API_URL, formData, {
+      await API.post(API_URL, formData, {
         headers: { "Content-Type": "multipart/form-data" },
         onUploadProgress: (event) =>
           setProgress(Math.round((event.loaded * 100) / event.total)),
@@ -118,7 +118,7 @@ const AdminGallery = () => {
   /* -------- Handle Delete -------- */
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${API_URL}${id}/`);
+      await API.delete(`${API_URL}${id}/`);
       setImages((prev) => prev.filter((img) => img._id !== id));
       toast.success("🗑️ Image deleted successfully!");
     } catch (err) {
@@ -229,7 +229,7 @@ const GalleryCard = ({ img, onDelete, onUpdated, API_URL }) => {
     formData.append("title", title);
     if (file) formData.append("image", file);
     try {
-      await axios.patch(`${API_URL}${img._id}/`, formData, {
+      await API.patch(`${API_URL}${img._id}/`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       setIsEditing(false);

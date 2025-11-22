@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
+import API from "../../../../api"; // ✅ use centralized API instance
 import { ToastContainer, toast, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { motion, AnimatePresence } from "framer-motion";
@@ -39,14 +39,14 @@ const BannerAdmin = () => {
   const [deleteTarget, setDeleteTarget] = useState(null);
 
   const dropRef = useRef(null);
-  const API_URL = `${import.meta.env.VITE_API_BASE_URL}/banners/`;
+  const API_URL = `/banners/`; // ✅ API base handled by API instance
 
   /* -------- Fetch all banners -------- */
   const fetchBanners = async () => {
     setFetching(true);
     setError("");
     try {
-      const res = await axios.get(API_URL);
+      const res = await API.get(API_URL);
       setBanners(res.data);
     } catch (err) {
       console.error(err);
@@ -106,7 +106,7 @@ const BannerAdmin = () => {
     formData.append("image", file);
 
     try {
-      await axios.post(API_URL, formData, {
+      await API.post(API_URL, formData, {
         headers: { "Content-Type": "multipart/form-data" },
         onUploadProgress: (progressEvent) => {
           setProgress(Math.round((progressEvent.loaded * 100) / progressEvent.total));
@@ -135,7 +135,7 @@ const BannerAdmin = () => {
   const handleDelete = async () => {
     if (!deleteTarget) return;
     try {
-      await axios.delete(`${API_URL}${deleteTarget._id}/`);
+      await API.delete(`${API_URL}${deleteTarget._id}/`);
       setBanners((prev) => prev.filter((b) => b._id !== deleteTarget._id));
       toast.success("🗑️ Banner deleted successfully!", { className: "toast-success" });
       setDeleteTarget(null);

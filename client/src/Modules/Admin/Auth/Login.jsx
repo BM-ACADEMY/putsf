@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import Logo from "../../../assets/putsf-logo.jpg";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -22,11 +23,9 @@ export default function Login() {
         { headers: { "Content-Type": "application/json" } }
       );
 
-      // Save JWT tokens
       localStorage.setItem("admin_access_token", res.data.access);
       localStorage.setItem("admin_refresh_token", res.data.refresh);
 
-      // ✅ Redirect to Gallery page instead of Dashboard
       navigate("/admin/gallery");
     } catch (err) {
       console.error(err);
@@ -37,39 +36,56 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center">Admin Login</h2>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-red-50 px-4">
+      <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-gray-200">
+        
+        {/* Logo */}
+        <div className="flex justify-center mb-6">
+          <img 
+            src={Logo} 
+            alt="PUTSF Logo" 
+            className="w-24 h-24 object-cover rounded-full shadow-md border-4 border-gray-200"
+          />
+        </div>
 
-        {error && <p className="bg-red-100 text-red-700 p-2 rounded mb-4">{error}</p>}
+        <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
+          Admin Login
+        </h2>
+
+        {error && (
+          <p className="bg-red-100 text-red-700 p-2 rounded mb-4 text-center">
+            {error}
+          </p>
+        )}
 
         <form onSubmit={handleLogin} className="space-y-4">
+          
           <div>
-            <label className="block text-gray-700">Email</label>
+            <label className="block text-gray-700 font-medium">Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full border border-gray-300 p-2 rounded mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full border border-gray-300 p-2 rounded mt-1 focus:ring-2 focus:ring-blue-600 focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-gray-700">Password</label>
+            <label className="block text-gray-700 font-medium">Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full border border-gray-300 p-2 rounded mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="w-full border border-gray-300 p-2 rounded mt-1 focus:ring-2 focus:ring-blue-600 focus:outline-none"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-700 text-white p-2 rounded hover:bg-blue-800 transition"
+            className="w-full bg-gradient-to-r from-[#0033A0] via-[#D62828] to-black text-white p-2 rounded-lg font-semibold hover:opacity-90 transition-all shadow-md"
           >
             {loading ? "Logging in..." : "Login"}
           </button>

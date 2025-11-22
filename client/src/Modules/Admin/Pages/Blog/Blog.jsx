@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import API from "../../../../api"; // ✅ use central API instance
 import { ToastContainer, toast, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { motion, AnimatePresence } from "framer-motion";
 
 const BlogAdmin = () => {
-  const API_URL = `${import.meta.env.VITE_API_BASE_URL}/blog/posts/`;
+  const API_URL = `/blog/posts/`; // ✅ base handled by API instance
   const MEDIA_URL = import.meta.env.VITE_MEDIA_BASE_URL;
 
   const [blogs, setBlogs] = useState([]);
@@ -20,7 +20,7 @@ const BlogAdmin = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [deleteTarget, setDeleteTarget] = useState(null); // For custom delete alert
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   /* ---------------- Fetch Blogs ---------------- */
   useEffect(() => {
@@ -29,7 +29,7 @@ const BlogAdmin = () => {
 
   const fetchBlogs = async () => {
     try {
-      const res = await axios.get(API_URL);
+      const res = await API.get(API_URL);
       setBlogs(res.data);
       setLoading(false);
     } catch (err) {
@@ -62,12 +62,12 @@ const BlogAdmin = () => {
 
     try {
       if (isEditing) {
-        await axios.patch(`${API_URL}${form._id}/`, formData, {
+        await API.patch(`${API_URL}${form._id}/`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
         toast.success("✅ Blog updated successfully!", { className: "toast-success" });
       } else {
-        await axios.post(API_URL, formData, {
+        await API.post(API_URL, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
         toast.success("✅ Blog created successfully!", { className: "toast-success" });
@@ -104,7 +104,7 @@ const BlogAdmin = () => {
   const handleDelete = async () => {
     if (!deleteTarget) return;
     try {
-      await axios.delete(`${API_URL}${deleteTarget._id}/`);
+      await API.delete(`${API_URL}${deleteTarget._id}/`);
       fetchBlogs();
       setDeleteTarget(null);
       toast.success("🗑️ Blog deleted successfully!", { className: "toast-success" });

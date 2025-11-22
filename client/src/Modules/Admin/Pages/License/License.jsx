@@ -1,20 +1,21 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import API from "../../../../api";
 import { ToastContainer, toast, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { CheckCircle, Trash2, Download, Clock } from "lucide-react";
 
 export default function LicenseAdmin() {
-  const API_URL = `${import.meta.env.VITE_API_BASE_URL}/license/`;
+  const API_URL = `/license/`;
 
   const [licenses, setLicenses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [processing, setProcessing] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
 
   /* ---------------- Fetch Licenses ---------------- */
   const fetchLicenses = async () => {
     try {
-      const res = await axios.get(API_URL);
+      const res = await API.get(API_URL);
       setLicenses(res.data);
       setLoading(false);
     } catch (err) {
@@ -29,13 +30,17 @@ export default function LicenseAdmin() {
 
   /* ---------------- Approve License ---------------- */
   const handleApprove = async (id) => {
+    setProcessing(true);
     try {
-      const res = await axios.post(`${API_URL}${id}/approve/`);
+      const res = await API.post(`${API_URL}${id}/approve/`);
+
+      // ✅ Success toast
       toast.success("✅ License approved successfully!", { className: "toast-success" });
 
+      // ✅ Refresh list
       fetchLicenses();
 
-      // ✅ If WhatsApp link is available
+      // ✅ WhatsApp link
       if (res.data?.whatsapp_link) {
         toast.info(
           <div className="flex flex-col gap-1">
@@ -52,8 +57,26 @@ export default function LicenseAdmin() {
           { autoClose: 8000, className: "toast-info" }
         );
       }
+
+      // ✅ Download link toast
+      if (res.data?.license_pdf) {
+        toast.success(
+          <a
+            href={res.data.license_pdf}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-white underline font-semibold"
+          >
+            📄 Download Generated License
+          </a>,
+          { autoClose: 7000, className: "toast-success" }
+        );
+      }
     } catch (err) {
+      console.error(err);
       toast.error("❌ Failed to approve license", { className: "toast-error" });
+    } finally {
+      setProcessing(false);
     }
   };
 
@@ -65,7 +88,7 @@ export default function LicenseAdmin() {
   const handleDelete = async () => {
     if (!deleteTarget) return;
     try {
-      await axios.delete(`${API_URL}${deleteTarget._id}/`);
+      await API.delete(`${API_URL}${deleteTarget._id}/`);
       toast.success("🗑️ License deleted successfully!", { className: "toast-success" });
       setDeleteTarget(null);
       fetchLicenses();
@@ -74,7 +97,7 @@ export default function LicenseAdmin() {
     }
   };
 
-  if (loading) return <p className="text-center mt-10 text-gray-500">Loading...</p>;
+  if (loading) return <p className="text-center mt-10 text-gray-500">Loading licenses...</p>;
 
   return (
     <div className="p-6 min-h-screen bg-gray-50">
@@ -164,10 +187,15 @@ export default function LicenseAdmin() {
                 <div className="flex gap-2">
                   {!item.is_approved && (
                     <button
+                      disabled={processing}
                       onClick={() => handleApprove(item._id)}
-                      className="px-3 py-1.5 bg-gradient-to-r from-[#0033A0] via-[#D62828] to-black text-white text-sm rounded-lg cursor-pointer hover:opacity-90"
+                      className={`px-3 py-1.5 text-white text-sm rounded-lg transition-all duration-200 ${
+                        processing
+                          ? "bg-gray-400 cursor-not-allowed"
+                          : "bg-gradient-to-r from-[#0033A0] via-[#D62828] to-black hover:opacity-90"
+                      }`}
                     >
-                      Approve
+                      {processing ? "Approving..." : "Approve"}
                     </button>
                   )}
                   <button
@@ -180,9 +208,10 @@ export default function LicenseAdmin() {
                 </div>
               </div>
 
+              {/* ✅ Show download link if approved */}
               {item.is_approved && item.license_pdf && (
                 <a
-                  href={`http://127.0.0.1:8000${item.license_pdf}`}
+                  href={item.license_pdf}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-3 inline-flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium"

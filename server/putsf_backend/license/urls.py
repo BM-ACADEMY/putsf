@@ -6,6 +6,6 @@ router = DefaultRouter()
 router.register(r'license', LicenseViewSet, basename='license')
 
 urlpatterns = [
-    path('', include(router.urls)),                # 👈 this line is crucial
-    path('license-download/', download_license, name='license-download'),
+    path('', include(router.urls)),  # includes /license/check_phone/
+    path('license-download/', download_license, name='license-download'),  # ✅ FIXED
 ]

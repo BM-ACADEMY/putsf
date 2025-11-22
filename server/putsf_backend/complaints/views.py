@@ -4,6 +4,7 @@ from .models import Complaint
 from .serializers import ComplaintSerializer
 from django.conf import settings
 from datetime import datetime
+from putsf_backend.db import get_db
 
 class ComplaintViewSet(viewsets.ModelViewSet):
     queryset = Complaint.objects.all()
@@ -14,7 +15,7 @@ class ComplaintViewSet(viewsets.ModelViewSet):
         """Save in SQLite and also sync to MongoDB if connected."""
         complaint = serializer.save()  # ✅ Save to SQLite first
 
-        db = settings.get_db()
+        db = get_db()
         if db:
             try:
                 db.complaints.insert_one({

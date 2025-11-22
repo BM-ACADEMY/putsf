@@ -9,7 +9,7 @@ export default function MembershipDownload() {
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [errorMsg, setErrorMsg] = useState("");
-  const [successMsg, setSuccessMsg] = useState(""); // ✅ New success message state
+  const [successMsg, setSuccessMsg] = useState("");
 
   const API_URL = `${import.meta.env.VITE_API_BASE_URL}/license-download`;
 
@@ -26,7 +26,6 @@ export default function MembershipDownload() {
   const handleDownload = async () => {
     const cleanPhone = phone.replace(/\D/g, "");
 
-    // ❌ Validation check
     if (cleanPhone.length !== 10) {
       setErrorMsg("Please enter a valid 10-digit phone number.");
       toast.error("❌ Invalid phone number. Please enter 10 digits.");
@@ -34,7 +33,7 @@ export default function MembershipDownload() {
     }
 
     setErrorMsg("");
-    setSuccessMsg(""); // Reset any previous success message
+    setSuccessMsg("");
     setLoading(true);
     setProgress(0);
     const interval = simulateProgress();
@@ -42,13 +41,12 @@ export default function MembershipDownload() {
     try {
       const res = await axios.get(`${API_URL}/?phone=${cleanPhone}`, {
         responseType: "blob",
-        validateStatus: () => true, // ✅ Allows manual handling of non-200 responses
+        validateStatus: () => true,
       });
 
       clearInterval(interval);
       setProgress(100);
 
-      // ✅ Handle response status manually
       if (res.status === 404 || res.status === 400) {
         setErrorMsg("Invalid credentials. Please check your phone number.");
         toast.error("❌ Invalid credentials. Please check your phone number.");
@@ -56,13 +54,13 @@ export default function MembershipDownload() {
         const url = window.URL.createObjectURL(new Blob([res.data]));
         const link = document.createElement("a");
         link.href = url;
-        link.setAttribute("download", "membership_certificate.pdf");
+        link.setAttribute("download", "membership_card.pdf");
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
 
-        toast.success("🎉 Membership Certificate downloaded successfully!");
-        setSuccessMsg("✅ Download completed successfully!"); // ✅ Show message below button
+        toast.success("🎉 Membership Card downloaded successfully!");
+        setSuccessMsg("✅ Membership Card downloaded successfully!");
       } else {
         setErrorMsg("Membership not found or not approved yet.");
         toast.error("❌ Membership not found or not approved yet.");
@@ -88,21 +86,21 @@ export default function MembershipDownload() {
         transition={{ duration: 0.6 }}
         className="max-w-md w-full bg-white shadow-2xl rounded-2xl p-8 text-center border-t-8 border-[#D62828] relative overflow-hidden"
       >
-        {/* Glow decorations */}
+        {/* Glow Decorations */}
         <div className="absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-tr from-[#0033A0] to-[#D62828] rounded-full blur-2xl opacity-30"></div>
         <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-gradient-to-bl from-[#D62828] to-yellow-400 rounded-full blur-2xl opacity-30"></div>
 
         <h1 className="text-3xl font-extrabold text-[#0033A0] mb-3">
-          Download Your Membership Certificate
+          Download Your Membership Card
         </h1>
         <p className="text-gray-700 mb-6 text-base md:text-lg">
           Enter your registered phone number to securely download your official{" "}
           <span className="text-[#D62828] font-semibold">
-            PUTSF Membership Certificate
+            PUTSF Membership Card
           </span>.
         </p>
 
-        {/* ✅ Input field */}
+        {/* Input Field */}
         <input
           type="text"
           placeholder="Enter your 10-digit phone number"
@@ -126,7 +124,7 @@ export default function MembershipDownload() {
           } outline-none p-3 rounded-lg w-full mb-2 text-center text-gray-800 transition-all duration-300`}
         />
 
-        {/* ❌ Error message (includes invalid credentials) */}
+        {/* Error message */}
         {errorMsg && (
           <p className="text-red-600 text-sm mb-3 font-medium animate-pulse">
             {errorMsg}
@@ -149,18 +147,18 @@ export default function MembershipDownload() {
         {/* Download Button */}
         <button
           onClick={handleDownload}
-          disabled={loading}
+          disabled={loading || phone.length !== 10}
           className={`w-full flex items-center justify-center gap-2 py-3 rounded-full text-white font-semibold text-lg transition-all duration-300 ${
-            loading
+            loading || phone.length !== 10
               ? "bg-gray-400 cursor-not-allowed"
               : "bg-gradient-to-r from-[#0033A0] via-[#D62828] to-[#000000] hover:scale-[1.03] hover:shadow-xl cursor-pointer"
           }`}
         >
           <FaDownload />
-          {loading ? "Downloading..." : "Download Certificate"}
+          {loading ? "Downloading..." : "Download Card"}
         </button>
 
-        {/* ✅ Success Message */}
+        {/* Success Message */}
         {successMsg && (
           <p className="text-green-600 font-semibold mt-4 animate-pulse">
             {successMsg}

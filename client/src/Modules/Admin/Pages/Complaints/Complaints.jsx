@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import API from "../../../../api"; // ✅ use your centralized API instance
 import { toast, ToastContainer } from "react-toastify";
 import { HiTrash } from "react-icons/hi";
 import "react-toastify/dist/ReactToastify.css";
@@ -9,17 +9,13 @@ const Complaints = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const API_URL = `${import.meta.env.VITE_API_BASE_URL}/complaints/`;
+  const API_URL = `/complaints/`; // ✅ base handled by API instance
 
   // 🔹 Fetch all complaints
   const fetchComplaints = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(API_URL, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("admin_access_token")}`,
-        },
-      });
+      const response = await API.get(API_URL);
       setComplaints(response.data);
       setError("");
     } catch (err) {
@@ -34,11 +30,7 @@ const Complaints = () => {
   // 🔹 Delete complaint
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${API_URL}${id}/`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("admin_access_token")}`,
-        },
-      });
+      await API.delete(`${API_URL}${id}/`);
       setComplaints((prev) => prev.filter((item) => item.id !== id));
       toast.success("✅ Complaint deleted successfully!");
     } catch (err) {

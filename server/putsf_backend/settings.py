@@ -1,5 +1,3 @@
-# putsf_backend/settings.py
-
 import os
 from pathlib import Path
 from pymongo import MongoClient
@@ -22,17 +20,21 @@ load_dotenv(BASE_DIR / ".env.local", override=True)  # local overrides if exists
 SECRET_KEY = os.getenv("SECRET_KEY", "fallback-secret-key")
 DEBUG = os.getenv("DEBUG", "False").lower() in ["true", "1", "yes"]
 
-# ALLOWED_HOSTS
+# -----------------------------
+# Allowed Hosts
+# -----------------------------
 RENDER_EXTERNAL_HOSTNAME = os.getenv("RENDER_EXTERNAL_HOSTNAME")
 
 ALLOWED_HOSTS = [
-    "putsf1.onrender.com",            # backend domain
-    "putsf1-frontend.onrender.com",   # frontend domain
-    "localhost",
+    "putsf.com",
+    "www.putsf.com",
+    "putsf1.onrender.com",
+    "putsf1-frontend.onrender.com",
     "127.0.0.1",
+    "localhost",
 ]
 
-if RENDER_EXTERNAL_HOSTNAME:  
+if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 # -----------------------------
@@ -60,7 +62,6 @@ INSTALLED_APPS = [
     "putsf_backend.complaints",
 ]
 
-
 # -----------------------------
 # Middleware
 # -----------------------------
@@ -87,7 +88,7 @@ ROOT_URLCONF = 'putsf_backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / "templates", BASE_DIR / "putsf_backend" / "templates"],  # ✅ Add both paths
+        'DIRS': [BASE_DIR / "templates", BASE_DIR / "putsf_backend" / "templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -100,14 +101,13 @@ TEMPLATES = [
     },
 ]
 
-
 # -----------------------------
 # WSGI
 # -----------------------------
 WSGI_APPLICATION = 'putsf_backend.wsgi.application'
 
 # -----------------------------
-# Database
+# Database (SQLite default)
 # -----------------------------
 DATABASES = {
     'default': {
@@ -125,12 +125,13 @@ MONGO_DB_NAME = os.getenv("MONGO_DB_NAME")
 _db = None
 
 def get_db():
+    """Return MongoDB connection instance if configured"""
     global _db
     if _db is None:
         if MONGO_URI and MONGO_DB_NAME:
             try:
                 client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
-                client.admin.command('ping')  # Test connection
+                client.admin.command('ping')
                 _db = client[MONGO_DB_NAME]
                 if DEBUG:
                     print(f"✅ Connected to MongoDB: {MONGO_DB_NAME}")
@@ -139,17 +140,14 @@ def get_db():
                 if DEBUG:
                     print(f"⚠️ MongoDB connection failed: {e}. Skipping MongoDB.")
         else:
-            _db = None
             if DEBUG:
                 print("⚠️ MONGO_URI or MONGO_DB_NAME not set. Skipping MongoDB.")
     return _db
 
 
-
+# Make get_db accessible via settings
 from django.conf import settings as django_settings
 django_settings.get_db = get_db
-
-
 
 # -----------------------------
 # Password Validation
@@ -172,35 +170,60 @@ USE_TZ = True
 # -----------------------------
 # Static & Media
 # -----------------------------
-# Static files (CSS, JavaScript, Images)
-# -----------------------------
-# Static & Media
-# -----------------------------
-# Static files
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "putsf_backend", "static")]
-STATIC_ROOT = BASE_DIR / "staticfiles"
-
-# Media files (user uploads)
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / "media"  # Create a separate folder for media
+STATIC_ROOT = '/root/arshad/Putsf/server/static'
+STATICFILES_DIRS = [
+    '/root/arshad/Putsf/server/putsf_backend/static',
+]
 
 
-# Full base URL for building absolute URLs
-if not DEBUG:
-    SITE_DOMAIN = "https://putsf1.onrender.com"
+
+
+# -----------------------------
+# Site Domain & Media URL
+# -----------------------------
+if DEBUG:
+    SITE_DOMAIN = "https://putsf.com"
 else:
     SITE_DOMAIN = "http://127.0.0.1:8000"
 
-BASE_URL = SITE_DOMAIN
+MEDIA_URL = '/media/'
+MEDIA_ROOT = '/var/www/putsf_media'
 
 
 
-
-# -----------------------------
+# -------------------se----------
 # CORS
 # -----------------------------
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = [
+    "https://putsf.com",
+    "https://www.putsf.com",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://putsf.com",
+    "https://www.putsf.com",
+]
+
+
+
+CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_METHODS = ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
+
+
+SECURE_CROSS_ORIGIN_OPENER_POLICY = None
 
 # -----------------------------
 # Custom User Model
@@ -212,11 +235,21 @@ AUTH_USER_MODEL = "accounts.AdminUser"
 # -----------------------------
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',  # For login
+        'rest_framework.permissions.AllowAny',
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ]
+}
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),   # short access token (auto-refresh)
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),     # stay logged in 7 days
+    "ROTATE_REFRESH_TOKENS": True,                   # generate new refresh token each time
+    "BLACKLIST_AFTER_ROTATION": True,
+    "UPDATE_LAST_LOGIN": False,
+    "AUTH_HEADER_TYPES": ("Bearer",),
 }
 
 
@@ -225,17 +258,3 @@ REST_FRAMEWORK = {
 # -----------------------------
 APPEND_SLASH = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# -----------------------------
-# Site domain
-# -----------------------------
-if not DEBUG:
-    SITE_DOMAIN = "https://putsf1.onrender.com"
-else:
-    SITE_DOMAIN = "http://127.0.0.1:8000"
-
-BASE_URL = SITE_DOMAIN
-
-
-from django.conf import settings as django_settings
-django_settings.get_db = get_db
