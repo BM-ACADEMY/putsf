@@ -58,6 +58,8 @@ class GalleryImageAPIView(APIView):
 
         full_url = f"{settings.SITE_DOMAIN}/media/gallery/{image_file.name}"
 
+
+
         data = {
             "title": title,
             "image_url": full_url,

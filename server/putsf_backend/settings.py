@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 from pymongo import MongoClient
 from dotenv import load_dotenv
+from decouple import config
 
 # -----------------------------
 # Base Directory
@@ -182,22 +183,32 @@ STATICFILES_DIRS = [
 # -----------------------------
 # Site Domain & Media URL
 # -----------------------------
-if DEBUG:
-    SITE_DOMAIN = "https://putsf.com"
-else:
-    SITE_DOMAIN = "http://127.0.0.1:8000"
+# if DEBUG:
+#     SITE_DOMAIN = "https://putsf.com"
+# else:
+#     SITE_DOMAIN = "http://127.0.0.1:8000"
+# if DEBUG:
+#     SITE_DOMAIN = "http://127.0.0.1:8000"
+# else:
+#     SITE_DOMAIN = "https://putsf.com"
 
-MEDIA_URL = '/media/'
+# MEDIA_URL = 'https://putsf.com/media/'
+# MEDIA_ROOT = '/var/www/putsf_media'
+
+SITE_DOMAIN = config("DOMAIN", default="https://putsf.com")
+MEDIA_URL = config("MEDIA_URL", default="/media/")
 MEDIA_ROOT = '/var/www/putsf_media'
-
-
 
 # -------------------se----------
 # CORS
 # -----------------------------
+# CORS_ALLOWED_ORIGINS = [
+#     "https://putsf.com",
+#     "https://www.putsf.com",
+# ]
 CORS_ALLOWED_ORIGINS = [
-    "https://putsf.com",
-    "https://www.putsf.com",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
 ]
 
 CSRF_TRUSTED_ORIGINS = [

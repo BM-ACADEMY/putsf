@@ -7,9 +7,6 @@ __pycache__/
 
 # Virtual environment
 venv/
-env/
-ENV/
-*.env
 
 # Django
 *.log
@@ -22,8 +19,7 @@ server/db.sqlite3    # ✅ Added this line
 staticfiles/
 
 # Environment variables
-.env
-.env.local
+
 
 # IDEs / Editors
 .vscode/
@@ -39,5 +35,4 @@ staticfiles/
 *.key
 
 # Frontend
-client/.env
-client/.env.local
+
