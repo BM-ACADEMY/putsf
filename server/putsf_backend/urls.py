@@ -3,10 +3,13 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from .views import home
+from rest_framework_simplejwt.views import TokenRefreshView
+
 
 urlpatterns = [
     path("", home, name="home"),
     path("admin-django/", admin.site.urls),
+    path("admin/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("api/admin/", include("putsf_backend.accounts.urls")),
     path("api/gallery/", include("putsf_backend.gallery.urls")),
     path("api/", include("putsf_backend.banner.urls")),

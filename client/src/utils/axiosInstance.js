@@ -1,19 +1,40 @@
-// src/utils/axiosInstance.js
 import axios from "axios";
-import { getAccessToken, clearAuth, isTokenExpired } from "./auth";
+import { getAccessToken, getRefreshToken, clearAuth, isTokenExpired } from "./auth";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
 });
 
-api.interceptors.request.use((config) => {
-  const token = getAccessToken();
-  if (token && !isTokenExpired(token)) {
-    config.headers.Authorization = `Bearer ${token}`;
+// Request: attach access token
+api.interceptors.request.use(async (config) => {
+  let access = getAccessToken();
+  const refresh = getRefreshToken();
+
+  // If access token expired and refresh exists → get new access token
+  if (access && isTokenExpired(access) && refresh) {
+    try {
+      const res = await axios.post(
+        import.meta.env.VITE_API_BASE_URL + "/admin/refresh/",
+        { refresh }
+      );
+      access = res.data.access;
+
+      localStorage.setItem("admin_access_token", access);
+    } catch (err) {
+      clearAuth();
+      window.location.href = "/admin/login";
+    }
   }
+
+  // Attach updated access token
+  if (access) {
+    config.headers.Authorization = `Bearer ${access}`;
+  }
+
   return config;
 });
 
+// Failed response → logout
 api.interceptors.response.use(
   (res) => res,
   (err) => {
