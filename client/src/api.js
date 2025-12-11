@@ -1,71 +1,109 @@
+// src/api.js
 import axios from "axios";
+import { getAccessToken, getRefreshToken, setTokens, clearAuth } from "./utils/auth";
 
 const baseURL = import.meta.env.VITE_API_BASE_URL;
+const REFRESH_ENDPOINT = "/admin/refresh/"; // relative to baseURL
 
 const API = axios.create({
   baseURL,
   headers: { "Content-Type": "application/json" },
 });
 
-// ✅ Attach access token to every outgoing request
+// Refresh control
+let isRefreshing = false;
+let refreshSubscribers = [];
+
+const subscribeTokenRefresh = (cb) => {
+  refreshSubscribers.push(cb);
+};
+
+const onRefreshed = (token) => {
+  refreshSubscribers.forEach((cb) => cb(token));
+  refreshSubscribers = [];
+};
+
+const refreshAuth = async () => {
+  if (isRefreshing) {
+    // return a promise that resolves when refresh finishes
+    return new Promise((resolve, reject) => {
+      subscribeTokenRefresh((token) => {
+        if (token) resolve(token);
+        else reject(new Error("Refresh failed"));
+      });
+    });
+  }
+
+  isRefreshing = true;
+  const refresh = getRefreshToken();
+
+  if (!refresh) {
+    isRefreshing = false;
+    onRefreshed(null);
+    throw new Error("No refresh token");
+  }
+
+  try {
+    const res = await axios.post(`${baseURL}${REFRESH_ENDPOINT}`, { refresh }, {
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const newAccess = res.data.access;
+    const newRefresh = res.data.refresh;
+
+    setTokens({ access: newAccess, refresh: newRefresh }); // update storage
+
+    isRefreshing = false;
+    onRefreshed(newAccess);
+    return newAccess;
+  } catch (err) {
+    isRefreshing = false;
+    onRefreshed(null);
+    clearAuth();
+    throw err;
+  }
+};
+
+// Request interceptor: attach token
 API.interceptors.request.use(
-  (config) => {
-    const accessToken = localStorage.getItem("admin_access_token");
-    if (accessToken) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
-    }
+  async (config) => {
+    const token = getAccessToken();
+    if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
   },
-  (error) => Promise.reject(error)
+  (err) => Promise.reject(err)
 );
 
-// ✅ Automatically refresh expired access tokens
+// Response interceptor: try refresh on 401
 API.interceptors.response.use(
-  (response) => response,
+  (res) => res,
   async (error) => {
     const originalRequest = error.config;
 
-    // If token expired and not already retried
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-      const refreshToken = localStorage.getItem("admin_refresh_token");
-
-      if (refreshToken) {
-        try {
-          // Request a new access token
-          const res = await axios.post(
-            `${baseURL}/admin/refresh/`,
-            { refresh: refreshToken },
-            { headers: { "Content-Type": "application/json" } }
-          );
-
-          const newAccessToken = res.data.access;
-          const newRefreshToken = res.data.refresh;
-
-          // Save new tokens
-          localStorage.setItem("admin_access_token", newAccessToken);
-          if (newRefreshToken) {
-            localStorage.setItem("admin_refresh_token", newRefreshToken);
-          }
-
-          // Retry the original request
-          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-          return API(originalRequest);
-        } catch (err) {
-          // Refresh token invalid → force logout
-          localStorage.removeItem("admin_access_token");
-          localStorage.removeItem("admin_refresh_token");
-          window.location.href = "/admin/login";
-        }
-      } else {
-        // No refresh token → logout
-        localStorage.removeItem("admin_access_token");
-        localStorage.removeItem("admin_refresh_token");
-        window.location.href = "/admin/login";
-      }
+    // If there's no response (network) or not 401 → bubble up
+    if (!error.response || error.response.status !== 401) {
+      return Promise.reject(error);
     }
 
-    return Promise.reject(error);
+    // Avoid infinite loop
+    if (originalRequest._retry) {
+      return Promise.reject(error);
+    }
+    originalRequest._retry = true;
+
+    try {
+      const newAccess = await refreshAuth();
+
+      // attach new token and retry original
+      originalRequest.headers.Authorization = `Bearer ${newAccess}`;
+      return API(originalRequest);
+    } catch (err) {
+      // refresh failed → force logout & redirect
+      clearAuth();
+      // if you're in SPA, prefer router navigation instead of location.href
+      window.location.href = "/admin/login";
+      return Promise.reject(err);
+    }
   }
 );
 

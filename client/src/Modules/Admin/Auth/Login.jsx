@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Logo from "../../../assets/putsf-logo.jpg";
+import { setTokens } from "../../../utils/auth";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -17,15 +18,21 @@ export default function Login() {
     setError("");
 
     try {
+      // ⛔ DO NOT use API here — it injects stale tokens
+      // ✔ Use axios directly for login
       const res = await axios.post(
         import.meta.env.VITE_API_BASE_URL + "/admin/login/",
         { email, password },
         { headers: { "Content-Type": "application/json" } }
       );
 
-      localStorage.setItem("admin_access_token", res.data.access);
-      localStorage.setItem("admin_refresh_token", res.data.refresh);
+      // ✔ Save tokens using new helper
+      setTokens({
+        access: res.data.access,
+        refresh: res.data.refresh,
+      });
 
+      // Redirect to dashboard
       navigate("/admin/gallery");
     } catch (err) {
       console.error(err);
@@ -38,12 +45,12 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-red-50 px-4">
       <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-gray-200">
-        
+
         {/* Logo */}
         <div className="flex justify-center mb-6">
-          <img 
-            src={Logo} 
-            alt="PUTSF Logo" 
+          <img
+            src={Logo}
+            alt="PUTSF Logo"
             className="w-24 h-24 object-cover rounded-full shadow-md border-4 border-gray-200"
           />
         </div>
@@ -59,7 +66,6 @@ export default function Login() {
         )}
 
         <form onSubmit={handleLogin} className="space-y-4">
-          
           <div>
             <label className="block text-gray-700 font-medium">Email</label>
             <input

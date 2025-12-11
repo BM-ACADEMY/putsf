@@ -3,7 +3,7 @@ import React, { useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import Sidebar from "../Pages/Dashboard/Sidebar";
 import Breadcrumbs from "../Pages/Dashboard/Breadcrumbs";
-import { clearAuth, getRefreshToken } from "../../../utils/auth";
+import { clearAuth, getRefreshToken, setTokens } from "../../../utils/auth";
 import API from "../../../api";
 
 const AdminLayout = () => {
@@ -11,27 +11,33 @@ const AdminLayout = () => {
 
   /* ----------------- Logout Handler ----------------- */
   const handleLogout = () => {
-    clearAuth(); // remove tokens
+    clearAuth();
     navigate("/admin/login", { replace: true });
   };
 
-  /* ----------------- Optional: Silent Token Refresh ----------------- */
+  /* ----------------- Silent Auto Refresh ----------------- */
   useEffect(() => {
     const interval = setInterval(async () => {
       const refresh = getRefreshToken();
       if (!refresh) return;
 
       try {
+        // Using API ensures proper Authorization & refresh queue 🌟
         const res = await API.post("/admin/refresh/", { refresh });
+
         if (res.data?.access) {
-          localStorage.setItem("admin_access_token", res.data.access);
+          // Use setTokens to update access + refresh if available
+          setTokens({
+            access: res.data.access,
+            refresh: res.data.refresh, // may or may not exist depending on rotation settings
+          });
         }
       } catch (err) {
-        // Refresh failed → logout
+        // Refresh failed → force logout
         clearAuth();
         navigate("/admin/login", { replace: true });
       }
-    }, 4 * 60 * 1000); // every 4 minutes
+    }, 3.5 * 60 * 1000); // refresh slightly before access token expires
 
     return () => clearInterval(interval);
   }, [navigate]);
@@ -39,11 +45,10 @@ const AdminLayout = () => {
   return (
     <div className="flex min-h-screen">
       {/* Sidebar */}
-      <Sidebar onLogout={handleLogout} /> {/* 👈 Pass logout to sidebar */}
+      <Sidebar onLogout={handleLogout} />
 
       {/* Main Content */}
       <div className="flex-1 md:ml-64 p-6 bg-gray-100 min-h-screen transition-all duration-300">
-        {/* Optional top bar or logout button if you don't want it in Sidebar */}
         <div className="flex justify-between items-center mb-4">
           <Breadcrumbs />
           <button
@@ -54,7 +59,7 @@ const AdminLayout = () => {
           </button>
         </div>
 
-        <Outlet /> {/* Renders Dashboard, Banner, Gallery, etc. */}
+        <Outlet />
       </div>
     </div>
   );

@@ -179,25 +179,14 @@ STATICFILES_DIRS = [
 
 
 
-
-# -----------------------------
-# Site Domain & Media URL
-# -----------------------------
-# if DEBUG:
-#     SITE_DOMAIN = "https://putsf.com"
-# else:
-#     SITE_DOMAIN = "http://127.0.0.1:8000"
-# if DEBUG:
-#     SITE_DOMAIN = "http://127.0.0.1:8000"
-# else:
-#     SITE_DOMAIN = "https://putsf.com"
-
-# MEDIA_URL = 'https://putsf.com/media/'
-# MEDIA_ROOT = '/var/www/putsf_media'
-
 SITE_DOMAIN = config("DOMAIN", default="https://putsf.com")
 MEDIA_URL = config("MEDIA_URL", default="/media/")
-MEDIA_ROOT = '/var/www/putsf_media'
+if DEBUG:
+    MEDIA_ROOT = BASE_DIR / "media"
+else:
+    MEDIA_ROOT = '/var/www/putsf_media'
+
+
 
 # -------------------se----------
 # CORS
