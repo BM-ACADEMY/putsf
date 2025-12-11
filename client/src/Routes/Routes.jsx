@@ -40,6 +40,8 @@ import License from "../Modules/Homepages/Pages/License";
 import LicenseDownload from "../Modules/Homepages/Pages/LicenseDownload";
 import Contact from "../Modules/Homepages/Pages/Contact";
 import Complaint from "../Modules/Homepages/Pages/Complaint";
+import LicenseCardPdfWrapper from "../Modules/Homepages/Pages/LicenseCardPdfWrapper";
+
 
 const AppRoutes = () => {
   return (
@@ -103,10 +105,15 @@ const AppRoutes = () => {
             </Layout>
           }
         />
-        
+
 
         {/* ---------- Admin ---------- */}
         <Route path="/admin/*" element={<AdminRoutes />} />
+        <Route
+  path="/admin/putsf/pdf/:id"
+  element={<LicenseCardPdfWrapper />}
+/>
+
 
         {/* ---------- Fallback ---------- */}
         <Route path="*" element={<Navigate to="/" replace />} />

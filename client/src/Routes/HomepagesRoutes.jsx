@@ -5,7 +5,7 @@ import Banner from "../Modules/Homepages/Layout/Banner";
 import BlogHome from "../Modules/Homepages/Pages/Blog";
 import Hero from "../Modules/Homepages/Pages/Hero";
 import SocialMediaLinks from "../Modules/Homepages/Pages/SocialMediaLinks";
-import License from "../Modules/Homepages/Pages/License"; // ✅ Add this import
+import LicenseDownload from "../Modules/Homepages/Pages/LicenseDownload"; // ✅ Add this import
 import Bar from "../Modules/Homepages/Pages/Bar";
 
 const HomepagesRoutes = () => {
@@ -17,6 +17,7 @@ const HomepagesRoutes = () => {
       <Home />
       <SocialMediaLinks />
       <BlogHome />
+      <LicenseDownload />
     </>
   );
 };
