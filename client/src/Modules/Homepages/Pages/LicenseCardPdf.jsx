@@ -69,7 +69,7 @@ export default function LicenseCardPdf({ license = {} }) {
     <div className="p-8">
       <div ref={cardRef} style={{ width: 650, height: 420, background: "#fff", border: "1px solid #0a0a0aad", position: "relative", overflow: "hidden", fontFamily: "Poppins, sans-serif" }}>
         {/* Header */}
-        <div style={{ height: 90, display: "flex", alignItems: "center", paddingLeft: 28, background: "linear-gradient(to bottom, #fa180e)", borderBottom: "1px solid #0a0a0aad" }}>
+        <div style={{ height: 90, display: "flex", alignItems: "center", paddingLeft: 28, background: "linear-gradient(to bottom, #014f94)", borderBottom: "1px solid #0a0a0aad" }}>
           <div style={{ width: 75, height: 75, borderRadius: "50%", background: "#fff", display: "flex", justifyContent: "center", alignItems: "center", marginRight: 20 }}>
             <img src={logo} crossOrigin="anonymous" style={{ width: 65, height: 65, borderRadius: "50%" }} alt="logo" />
           </div>

@@ -47,7 +47,7 @@ const Bar = () => {
         {activeTab === "about" && (
           <>
             <h2 className="text-3xl p-2 md:text-4xl font-extrabold bg-gradient-to-r from-[#0033A0] via-[#D62828] to-black bg-clip-text text-transparent mb-3 drop-shadow-md">
-              மாணவர்கள் முன்னேற்றப் 
+              மாணவர்கள் முன்னேற்றப் கூட்டமைப்பு
             </h2>
             <div className="mx-auto w-28 h-1.5 bg-gradient-to-r from-[#0033A0] via-[#D62828] to-black rounded-full mb-6 shadow-lg"></div>
             <p className="text-gray-700 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">

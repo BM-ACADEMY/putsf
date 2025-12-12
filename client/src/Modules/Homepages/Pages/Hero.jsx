@@ -13,12 +13,13 @@ const Hero = () => {
         {/* Left Section */}
         <div className="md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left">
           <h1 className="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-[#0033A0] via-[#D62828] to-black bg-clip-text text-transparent drop-shadow-md mb-4 leading-tight">
-            மாணவர்கள் முன்னேற்றப் பாசறை
-          </h1>
+  மாணவர்கள் முன்னேற்றக் கூட்டமைப்பு
+</h1>
+
 
           <p className="text-lg md:text-xl text-gray-800 leading-relaxed mb-6">
-            மாணவர்கள் ஒன்றிணைவதே முன்னேற்றத்தின் பாதை.  
-            PUTSF தளம் சமூக மாற்றத்திற்கும் இளைய தலைமுறையின் அரசியல் விழிப்புணர்விற்கும்  
+            மாணவர்கள் ஒன்றிணைவதே முன்னேற்றத்தின் பாதை.
+            PUTSF தளம் சமூக மாற்றத்திற்கும் இளைய தலைமுறையின் அரசியல் விழிப்புணர்விற்கும்
             ஒரு சக்திவாய்ந்த குரல் ஆகும்.
           </p>
 
