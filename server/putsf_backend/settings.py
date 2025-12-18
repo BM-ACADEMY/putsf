@@ -29,6 +29,7 @@ RENDER_EXTERNAL_HOSTNAME = os.getenv("RENDER_EXTERNAL_HOSTNAME")
 ALLOWED_HOSTS = [
     "putsf.com",
     "www.putsf.com",
+    "api.putsf.com",
     "putsf1.onrender.com",
     "putsf1-frontend.onrender.com",
     "127.0.0.1",
@@ -171,21 +172,21 @@ USE_TZ = True
 # -----------------------------
 # Static & Media
 # -----------------------------
+
 STATIC_URL = '/static/'
-STATIC_ROOT = '/root/arshad/Putsf/server/static'
+STATIC_ROOT = '/var/www/putsf-app/server/staticfiles'  
 STATICFILES_DIRS = [
-    '/root/arshad/Putsf/server/putsf_backend/static',
+    '/var/www/putsf-app/server/putsf_backend/static',
 ]
 
+# Always use API domain for media URLs
+MEDIA_URL = "https://api.putsf.com/media/"
 
-
-SITE_DOMAIN = config("DOMAIN", default="https://putsf.com")
-MEDIA_URL = config("MEDIA_URL", default="/media/")
+# Where to store uploaded files
 if DEBUG:
     MEDIA_ROOT = BASE_DIR / "media"
 else:
-    MEDIA_ROOT = '/var/www/putsf_media'
-
+    MEDIA_ROOT = "/var/www/putsf_media"
 
 
 # -------------------se----------
@@ -196,9 +197,12 @@ else:
 #     "https://www.putsf.com",
 # ]
 CORS_ALLOWED_ORIGINS = [
+    "https://putsf.com",
+    "https://www.putsf.com",
     "http://localhost:5173",
     "http://127.0.0.1:5173",
 ]
+
 
 CSRF_TRUSTED_ORIGINS = [
     "https://putsf.com",

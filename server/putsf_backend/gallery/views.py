@@ -56,7 +56,7 @@ class GalleryImageAPIView(APIView):
             for chunk in image_file.chunks():
                 f.write(chunk)
 
-        full_url = f"{settings.SITE_DOMAIN}/media/gallery/{image_file.name}"
+        full_url = f"{settings.MEDIA_URL}gallery/{image_file.name}"
 
 
 
@@ -99,7 +99,7 @@ class GalleryImageAPIView(APIView):
                     for chunk in image_file.chunks():
                         f.write(chunk)
 
-                full_url = f"{settings.SITE_DOMAIN}/media/gallery/{image_file.name}"
+                full_url = f"{settings.MEDIA_URL}gallery/{image_file.name}"
                 update_data["image_url"] = full_url
 
                 # Remove old image
