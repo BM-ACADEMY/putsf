@@ -26,17 +26,22 @@ const Banner = () => {
     fetchBanner();
   }, []);
 
+  // ✅ Light Theme Loading
   if (loading) {
     return (
-      <section className="w-full bg-white text-center py-12 mt-[70px]">
-        <p className="text-gray-500">Loading banner...</p>
+      <section className="w-full h-screen bg-white flex items-center justify-center">
+        <div className="flex flex-col items-center">
+          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-6"></div>
+          <p className="text-gray-500 font-medium tracking-wide animate-pulse">LOADING CONTENT...</p>
+        </div>
       </section>
     );
   }
 
+  // ✅ Light Theme Error
   if (error || !banner) {
     return (
-      <section className="w-full bg-white text-center py-12 mt-[70px]">
+      <section className="w-full h-[50vh] bg-white flex items-center justify-center">
         <p className="text-gray-500">No banner available.</p>
       </section>
     );
@@ -47,55 +52,59 @@ const Banner = () => {
     : `${MEDIA_URL}${banner.image}`;
 
   return (
-  <section className="relative w-full overflow-hidden bg-white mt-[70px]">
-    {/* 🌄 Banner Image Full Width */}
-    <div className="relative w-full">
-      <div className="relative overflow-hidden rounded-none shadow-2xl border-0">
+    // ✅ Full Screen Height Section - White Background
+    <section className="relative w-full h-[calc(100vh-80px)] min-h-[600px] flex items-center justify-center overflow-hidden bg-white">
+
+      {/* 🖼️ Background Image - NO DARK OVERLAY */}
+      <div className="absolute inset-0 w-full h-full">
         <img
           src={imageSrc}
           alt={banner.title}
-          className="w-full h-[360px] md:h-[520px] lg:h-[650px] object-cover transition-transform duration-700 ease-in-out transform hover:scale-105"
+          className="w-full h-full object-cover"
         />
-
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
-
-        {/* 🩸 Banner Text */}
-        <div className="absolute bottom-10 left-6 sm:left-12 lg:left-20 text-white max-w-[95%] sm:max-w-[70%] lg:max-w-[55%] drop-shadow-2xl">
-          <h2 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold mb-3 animate-fadeInUp delay-100">
-            {banner.title}
-          </h2>
-
-          {banner.subtitle && (
-            <p className="text-lg sm:text-2xl opacity-90 animate-fadeInUp delay-200">
-              {banner.subtitle}
-            </p>
-          )}
-
-          
-        </div>
+        {/* Optional: Very subtle white wash at bottom just to help text definition if image is busy */}
+        <div className="absolute inset-0 bg-gradient-to-t from-white/40 via-transparent to-transparent"></div>
       </div>
-    </div>
 
-    {/* ✨ Animations */}
-    <style>
-      {`
-        @keyframes fadeInUp {
-          0% { opacity: 0; transform: translateY(20px); }
-          100% { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fadeInUp {
-          animation: fadeInUp 0.8s forwards;
-        }
-        .delay-100 { animation-delay: 0.1s; }
-        .delay-200 { animation-delay: 0.2s; }
-        .delay-300 { animation-delay: 0.3s; }
-        .delay-400 { animation-delay: 0.4s; }
-      `}
-    </style>
-  </section>
-);
+      {/* 📝 Central Content - Dark Text */}
+      <div className="relative z-10 container mx-auto px-6 text-center max-w-5xl mt-10">
 
+        
+        {/* Main Title - Dark Slate Color */}
+        <h2 className="text-5xl md:text-7xl lg:text-8xl font-black text-slate-900 leading-tight mb-6 drop-shadow-lg animate-fadeInUp delay-200">
+          {banner.title}
+        </h2>
+
+        {/* Subtitle - Medium Gray */}
+        {banner.subtitle && (
+          // Added mb-16 for better spacing since buttons are gone
+          <p className="text-lg md:text-2xl text-gray-800 mb-16 font-medium leading-relaxed max-w-3xl mx-auto animate-fadeInUp delay-300 drop-shadow-md">
+            {banner.subtitle}
+          </p>
+        )}
+
+        {/* 🚫 BUTTONS REMOVED HERE 🚫 */}
+
+      </div>
+
+      {/* 🚫 SCROLL INDICATOR REMOVED HERE 🚫 */}
+
+      {/* ✨ CSS Animations */}
+      <style>
+        {`
+          @keyframes fadeInUp {
+            0% { opacity: 0; transform: translateY(40px); }
+            100% { opacity: 1; transform: translateY(0); }
+          }
+          .animate-fadeInUp {
+            animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+          }
+          .delay-200 { animation-delay: 0.2s; }
+          .delay-300 { animation-delay: 0.3s; }
+        `}
+      </style>
+    </section>
+  );
 };
 
 export default Banner;

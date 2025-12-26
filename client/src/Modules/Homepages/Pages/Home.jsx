@@ -14,7 +14,8 @@ const Home = () => {
     const fetchImages = async () => {
       try {
         const res = await axios.get(API_URL);
-        setImages(res.data.slice(0, 4)); // Show 4 images preview
+        // Ensure we get data, fallback to empty array if error
+        setImages(res.data ? res.data.slice(0, 4) : []);
       } catch (err) {
         console.error(err);
         setError("Failed to load gallery preview.");
@@ -26,47 +27,67 @@ const Home = () => {
   }, []);
 
   return (
-    <main className="font-sans bg-gradient-to-br from-[#0033A0]/10 via-white to-[#D62828]/10 text-gray-900 relative overflow-hidden">
-      <div className="container mx-auto px-4 md:px-16 lg:px-24 xl:px-32 py-16">
-        {/* 🖼️ Section Header */}
-        <section className="space-y-8 text-center">
-          <h2 className="text-4xl p-2 md:text-5xl font-extrabold bg-gradient-to-r from-[#0033A0] via-[#D62828] to-[#000000] bg-clip-text text-transparent">
-            Gallery Highlights
-          </h2>
-          <p className="text-lg md:text-xl text-gray-700 max-w-3xl mx-auto">
-            A glimpse into our movement — moments of unity, progress, and change.{" "}
-            <span className="font-semibold text-[#D62828]">
-              People’s Progressive Spirit 🇮🇳
-            </span>
-          </p>
-        </section>
+    <section className="relative w-full bg-slate-50 py-20 md:py-28 overflow-hidden">
+
+      {/* 🏁 Background Texture (Dot Grid Pattern) */}
+      <div className="absolute inset-0 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:20px_20px] opacity-60 pointer-events-none"></div>
+
+      <div className="container mx-auto px-6 md:px-12 lg:px-20 relative z-10">
+
+        {/* 📝 Section Header */}
+        <div className="text-center max-w-3xl mx-auto mb-16">
+           <p className="text-[#0056b3] font-bold tracking-widest uppercase text-xs md:text-sm mb-3">
+             Our Memories
+           </p>
+           <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-6">
+             Gallery <span className="text-[#dc2626]">Highlights</span>
+           </h2>
+           <div className="w-24 h-1.5 bg-gradient-to-r from-[#0056b3] to-[#dc2626] mx-auto rounded-full mb-6"></div>
+           <p className="text-lg text-gray-600 leading-relaxed">
+             A glimpse into our movement — moments of unity, progress, and change.
+             <span className="block mt-2 font-semibold text-slate-900 italic">
+               “People’s Progressive Spirit” 🇮🇳
+             </span>
+           </p>
+        </div>
 
         {/* 🌀 Loading / Error State */}
         {loading && (
-          <p className="text-center text-gray-500 mt-8">Loading gallery...</p>
+          <div className="flex justify-center py-10">
+             <div className="w-10 h-10 border-4 border-[#0056b3] border-t-transparent rounded-full animate-spin"></div>
+          </div>
         )}
+
         {error && (
-          <p className="text-center text-[#D62828] font-medium mt-8">{error}</p>
+          <div className="text-center py-10 bg-red-50 rounded-xl border border-red-100 max-w-lg mx-auto">
+             <p className="text-[#dc2626] font-medium">{error}</p>
+          </div>
         )}
 
         {/* 🖼️ Gallery Grid */}
         {!loading && !error && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
             {images.map((img) => (
               <div
                 key={img._id}
-                className="relative overflow-hidden rounded-2xl shadow-2xl cursor-pointer group border-4 border-transparent hover:border-[#FFD700] transition-all duration-500"
+                className="group relative overflow-hidden rounded-2xl shadow-lg bg-white cursor-pointer border-2 border-transparent hover:border-[#0056b3] transition-all duration-300 h-[280px]"
                 onClick={() => setSelectedImage(img.image_url)}
               >
+                {/* Image */}
                 <img
                   src={img.image_url}
                   alt={img.title}
-                  className="w-full h-52 md:h-64 object-cover transform transition-transform duration-700 group-hover:scale-110"
+                  className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110"
                 />
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end justify-center p-3">
-                  <h3 className="text-white text-center text-lg font-semibold drop-shadow-md">
-                    {img.title}
-                  </h3>
+
+                {/* Overlay (Dark Gradient on Hover) */}
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                  <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                    <h3 className="text-white text-lg font-bold leading-tight">
+                      {img.title}
+                    </h3>
+                    <div className="w-10 h-1 bg-[#dc2626] mt-2"></div>
+                  </div>
                 </div>
               </div>
             ))}
@@ -74,47 +95,57 @@ const Home = () => {
         )}
 
         {/* 🔗 View More Button */}
-        <div className="text-center mt-10">
-          <Link
-            to="/gallery"
-            className="inline-block px-8 py-3 bg-gradient-to-r from-[#0033A0] via-[#D62828] to-[#000000] text-white font-semibold rounded-full shadow-lg hover:opacity-90 hover:scale-105 transition-transform"
-          >
-            View Full Gallery
-          </Link>
-        </div>
+        {!loading && !error && (
+           <div className="text-center mt-12 md:mt-16">
+             <Link
+               to="/gallery"
+               className="inline-flex items-center gap-2 px-8 py-3.5 bg-white border-2 border-slate-900 text-slate-900 font-bold rounded-lg hover:bg-slate-900 hover:text-white transition-all duration-300 shadow-sm hover:shadow-lg hover:-translate-y-1"
+             >
+               View Full Gallery
+               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                 <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3" />
+               </svg>
+             </Link>
+           </div>
+        )}
 
         {/* 🌌 Lightbox Modal */}
         {selectedImage && (
           <div
-            className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 animate-fadeIn backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/95 backdrop-blur-md p-4 animate-fadeIn"
             onClick={() => setSelectedImage(null)}
           >
-            <div className="relative max-w-4xl max-h-[90vh]">
+            <div className="relative w-full max-w-5xl">
+              {/* Close Button */}
+              <button
+                onClick={() => setSelectedImage(null)}
+                className="absolute -top-12 right-0 text-white hover:text-red-400 transition-colors"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-8 h-8">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+
               <img
                 src={selectedImage}
                 alt="Selected"
-                className="rounded-2xl shadow-2xl max-w-full max-h-full animate-scaleIn"
+                className="w-full h-auto max-h-[85vh] object-contain rounded-lg shadow-2xl animate-scaleIn border border-white/10"
               />
-              <button
-                onClick={() => setSelectedImage(null)}
-                className="absolute top-3 right-3 bg-white/80 text-black px-3 py-1 rounded-full font-bold text-lg hover:bg-white"
-              >
-                ✕
-              </button>
             </div>
           </div>
         )}
       </div>
 
-      {/* 📩 Sticky Complaint Box Button (Bottom-Right) */}
+      {/* 📩 Floating Complaint Box Button */}
       <Link
         to="/complaint"
-        className="fixed bottom-6 right-6 bg-gradient-to-r from-[#0033A0] via-[#D62828] to-[#000000] text-white font-semibold px-5 py-3 rounded-full shadow-xl hover:scale-105 hover:shadow-2xl transition-transform duration-300 flex items-center gap-2 z-50 cursor-pointer"
+        className="fixed bottom-8 right-8 z-40 group flex items-center gap-3 bg-[#dc2626] hover:bg-[#b91c1c] text-white px-6 py-4 rounded-full shadow-2xl hover:shadow-red-900/30 hover:-translate-y-1 transition-all duration-300"
       >
-        🗳️ Complaint Box
+        <span className="text-2xl animate-bounce">🗳️</span>
+        <span className="font-bold tracking-wide">Complaint Box</span>
       </Link>
 
-      {/* ✨ Custom Animations */}
+      {/* ✨ CSS Animations */}
       <style>
         {`
           @keyframes fadeIn {
@@ -122,14 +153,14 @@ const Home = () => {
             to { opacity: 1; }
           }
           @keyframes scaleIn {
-            from { transform: scale(0.8); opacity: 0; }
+            from { transform: scale(0.95); opacity: 0; }
             to { transform: scale(1); opacity: 1; }
           }
           .animate-fadeIn { animation: fadeIn 0.3s ease-out forwards; }
-          .animate-scaleIn { animation: scaleIn 0.4s ease-out forwards; }
+          .animate-scaleIn { animation: scaleIn 0.3s ease-out forwards; }
         `}
       </style>
-    </main>
+    </section>
   );
 };
 

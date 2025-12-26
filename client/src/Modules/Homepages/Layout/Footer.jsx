@@ -2,78 +2,162 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import Logo from "../../../assets/putsf-logo.jpg";
+import { FaFacebookF, FaTwitter, FaInstagram, FaYoutube } from "react-icons/fa";
 
 const Footer = () => {
-  const menuItems = ["Home", "Gallery", "Blog", "Contact"];
+  const menuItems = [
+    { name: "Home", path: "/" },
+    { name: "About Us", path: "/about" },
+    { name: "Gallery", path: "/gallery" },
+    { name: "Blog", path: "/blog" },
+    { name: "Contact", path: "/contact" },
+  ];
+
+  // ✅ REAL & CORRECT SOCIAL LINKS
+  const socialLinks = [
+    {
+      name: "Facebook",
+      icon: <FaFacebookF />,
+      link: "https://www.facebook.com/swaminathan1105",
+      hover: "hover:bg-[#1877F2]",
+    },
+    {
+      name: "X (Twitter)",
+      icon: <FaTwitter />,
+      link: "https://x.com/c_pondy?t=kaIyholWlGDvDTB5xGFqQ&s=09",
+      hover: "hover:bg-black",
+    },
+    {
+      name: "Instagram",
+      icon: <FaInstagram />,
+      link: "https://www.instagram.com/c.s.swamynathan/",
+      hover: "hover:bg-[#E1306C]",
+    },
+    {
+      name: "YouTube",
+      icon: <FaYoutube />,
+      link: "https://www.youtube.com/@swaminathan506",
+      hover: "hover:bg-[#FF0000]",
+    },
+  ];
 
   return (
-    <footer className="bg-white border-t-4 border-[#D62828] w-full text-gray-700 px-6 md:px-16 lg:px-24 xl:px-32 py-12 shadow-inner">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-12 items-start">
-        {/* 🟦 Logo + Description */}
-        <div className="flex flex-col gap-4">
-          <Link to="/" className="flex items-center gap-3">
-            <img
-              src={Logo}
-              alt="PUTSF Logo"
-              className="w-10 h-10 md:w-12 md:h-12 object-contain"
-            />
-            <span className="text-[#0033A0] font-bold text-base md:text-lg lg:text-xl leading-snug">
-              Puducherry Union Territory Student's Federation
-            </span>
-          </Link>
-          <p className="text-gray-600 text-sm md:text-base leading-relaxed">
-            The Puducherry Union Territory Student's Federation (PUTSF) is an
-            independent student organization focused on advocating for student
-            rights and empowering youth leadership within the Union Territory.
+    <footer className="relative bg-[#0f172a] text-white pt-20 pb-10 overflow-hidden border-t-[6px] border-[#dc2626]">
+
+      {/* Background texture */}
+      <div className="absolute inset-0 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:20px_20px] opacity-[0.03] pointer-events-none"></div>
+
+      <div className="container mx-auto px-6 md:px-12 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+
+          {/* Brand */}
+          <div className="lg:col-span-2 space-y-6">
+            <Link to="/" className="flex items-center gap-4 group">
+              <div className="bg-white p-1 rounded-full">
+                <img
+                  src={Logo}
+                  alt="PUTSF Logo"
+                  className="w-12 h-12 md:w-14 md:h-14 object-contain"
+                />
+              </div>
+              <div>
+                <span className="text-gray-400 text-xs font-bold tracking-widest uppercase">
+                  Official Site
+                </span>
+                <h2 className="font-black text-xl md:text-2xl group-hover:text-[#3b82f6] transition">
+                  PUTSF
+                </h2>
+                <p className="text-sm text-gray-300">
+                  Puducherry Union Territory Student's Federation
+                </p>
+              </div>
+            </Link>
+
+            <p className="text-gray-400 max-w-md text-sm leading-relaxed">
+              PUTSF is an independent student organization advocating for student
+              rights, social justice, and empowered youth leadership.
+            </p>
+
+            {/* Social Icons */}
+            <div className="flex gap-4 pt-2">
+              {socialLinks.map((item, i) => (
+                <a
+                  key={i}
+                  href={item.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={item.name}
+                  className={`w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-white transition-all duration-300 hover:-translate-y-1 ${item.hover}`}
+                >
+                  {item.icon}
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Quick Links */}
+          <div>
+            <h3 className="text-lg font-bold mb-6 border-l-4 border-[#0056b3] pl-3 uppercase">
+              Quick Links
+            </h3>
+            <ul className="space-y-3">
+              {menuItems.map((item) => (
+                <li key={item.name}>
+                  <Link
+                    to={item.path}
+                    className="text-gray-400 hover:text-white hover:pl-2 transition-all flex items-center gap-2"
+                  >
+                    <span className="text-[#dc2626] text-xs">➤</span>
+                    {item.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Get Involved */}
+          <div>
+            <h3 className="text-lg font-bold mb-6 border-l-4 border-[#dc2626] pl-3 uppercase">
+              Get Involved
+            </h3>
+            <p className="text-gray-400 text-sm mb-6">
+              Join the movement. Stand for student rights and justice.
+            </p>
+
+            <Link
+              to="/license"
+              className="block text-center bg-[#dc2626] hover:bg-[#b91c1c] px-6 py-3 rounded-lg font-bold uppercase text-sm transition hover:-translate-y-1"
+            >
+              Become a Member
+            </Link>
+
+            <Link
+              to="/complaint"
+              className="block mt-3 text-center border border-slate-600 hover:border-white px-6 py-3 rounded-lg font-bold uppercase text-sm text-gray-300 hover:text-white transition"
+            >
+              File Complaint
+            </Link>
+          </div>
+        </div>
+
+        {/* Footer bottom */}
+        <div className="border-t border-slate-800 pt-8 text-center">
+          <p className="text-gray-400 text-sm">
+            © {new Date().getFullYear()} <span className="text-white font-semibold">PUTSF</span>.
+            All Rights Reserved.
+            <br />
+            Developed by{" "}
+            <a
+              href="https://bmtechx.in/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#dc2626] font-bold hover:text-white underline-offset-4 hover:underline"
+            >
+              bmtechx.in
+            </a>
           </p>
         </div>
 
-        {/* 🟥 Quick Links */}
-        <div className="flex flex-col md:items-center text-sm space-y-2.5">
-          <h2 className="font-semibold mb-5 text-[#0033A0] uppercase tracking-wide">
-            Quick Links
-          </h2>
-          {menuItems.map((item) => (
-            <Link
-              key={item}
-              to={item === "Home" ? "/" : `/${item.toLowerCase()}`}
-              className="text-gray-700 hover:text-[#D62828] transition-all duration-300"
-            >
-              {item}
-            </Link>
-          ))}
-        </div>
-
-        {/* 🖤 Join Us Button */}
-        <div className="flex flex-col items-start md:items-end gap-4">
-          <h2 className="font-semibold text-[#0033A0] mb-2 uppercase tracking-wide">
-            Get Involved
-          </h2>
-          <Link
-            to="/license"
-            className="inline-block bg-gradient-to-r from-[#0033A0] via-[#D62828] to-[#000000] text-white px-6 py-2 rounded-full font-semibold shadow-md hover:opacity-90 hover:scale-105 transition-all duration-300"
-          >
-            Join Us
-          </Link>
-        </div>
-      </div>
-
-      {/* Divider + Copyright */}
-      <div className="border-t border-gray-200 mt-10 pt-5 text-center">
-        <p className="text-gray-500 text-sm">
-          Copyright © {new Date().getFullYear()}{" "}
-          <span className="font-semibold text-[#0033A0]">PUTSF</span>. All Rights Reserved.
-          <br />
-          Developed by{" "}
-          <a
-            href="https://bmtechx.in/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[#D62828] hover:underline"
-          >
-            bmtechx.in
-          </a>
-        </p>
       </div>
     </footer>
   );

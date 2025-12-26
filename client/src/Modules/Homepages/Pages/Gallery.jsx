@@ -20,10 +20,11 @@ const HomeGallery = () => {
     const fetchImages = async () => {
       try {
         const res = await axios.get(API_URL);
-        setImages(res.data);
+        // Ensure we handle the response correctly
+        setImages(Array.isArray(res.data) ? res.data : []);
       } catch (err) {
         console.error(err);
-        setError("⚠️ Failed to load gallery images.");
+        setError("Failed to load gallery images.");
       }
     };
     fetchImages();
@@ -34,59 +35,80 @@ const HomeGallery = () => {
     setLightboxOpen(true);
   };
   const closeLightbox = () => setLightboxOpen(false);
-  const prevImage = () =>
+
+  const prevImage = (e) => {
+    e.stopPropagation();
     setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
-  const nextImage = () =>
+  };
+
+  const nextImage = (e) => {
+    e.stopPropagation();
     setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+  };
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-red-50 py-20 md:py-28">
-      {/* 🩵 Subtle gradient overlay (like BlogHome) */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#0033A0]/10 via-[#D62828]/10 to-black/10 mix-blend-multiply"></div>
+    <section className="relative w-full bg-slate-50 py-20 md:py-28 overflow-hidden">
 
-      <div className="relative container mx-auto px-4 md:px-8 lg:px-16">
+      {/* 🏁 Background Texture (Dot Grid) */}
+      <div className="absolute inset-0 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:20px_20px] opacity-60 pointer-events-none"></div>
+
+      <div className="relative container mx-auto px-6 md:px-12 lg:px-16 z-10">
+
         {/* --- Title Section --- */}
         <motion.div
-          className="text-center mb-14"
-          initial={{ opacity: 0, y: -30 }}
+          className="text-center mb-16 max-w-3xl mx-auto"
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="text-4xl p-2   md:text-6xl font-extrabold bg-gradient-to-r  from-[#0033A0] via-[#D62828] to-black bg-clip-text text-transparent drop-shadow-md leading-tight ">
-            Our <span className="text-[#D62828]">Gallery</span> Highlights
+          <p className="text-[#0056b3] font-bold tracking-widest uppercase text-xs md:text-sm mb-3">
+             Visual Journey
+           </p>
+          <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-6">
+            Our <span className="text-[#dc2626]">Gallery</span> Highlights
           </h2>
-          <div className="mx-auto mt-4 w-32 h-1.5 bg-gradient-to-r from-[#0033A0] via-[#D62828] to-[#000000] rounded-full shadow-lg"></div>
-          <p className="text-gray-800 text-lg md:text-xl mt-6 max-w-3xl mx-auto leading-relaxed">
+          <div className="w-24 h-1.5 bg-gradient-to-r from-[#0056b3] to-[#dc2626] mx-auto rounded-full mb-6"></div>
+
+          <p className="text-lg text-gray-600 leading-relaxed font-medium">
             A glimpse into our movement — moments of unity, progress, and change.{" "}
-            <span className="text-[#D62828] font-semibold">
+            <span className="text-slate-900 font-bold block mt-2">
               People’s Progressive Spirit in Action.
             </span>
           </p>
         </motion.div>
 
         {error && (
-          <p className="text-center text-red-600 mb-4 font-medium">{error}</p>
+          <div className="text-center py-8 bg-red-50 rounded-xl border border-red-100 max-w-lg mx-auto mb-8">
+             <p className="text-[#dc2626] font-medium">{error}</p>
+          </div>
         )}
 
         {/* --- Gallery Grid --- */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 relative z-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
           {images.map((img, index) => (
             <motion.div
               key={img._id}
-              className="relative group overflow-hidden rounded-3xl shadow-xl cursor-pointer bg-white border border-gray-200 hover:shadow-2xl transition-all duration-300"
+              className="group relative overflow-hidden rounded-2xl bg-white shadow-md cursor-pointer border-2 border-transparent hover:border-[#0056b3] hover:shadow-xl transition-all duration-300 h-64 md:h-72"
               onClick={() => openLightbox(index)}
-              initial={{ opacity: 0, y: 50 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.08, duration: 0.4 }}
+              transition={{ delay: index * 0.05, duration: 0.4 }}
+              whileHover={{ y: -5 }}
             >
               <img
                 src={img.image_url}
                 alt={img.title}
-                className="w-full h-64 object-cover transform transition-transform duration-500 group-hover:scale-110"
+                className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110"
               />
-              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-white transition duration-300">
-                <FaSearchPlus className="text-3xl mb-2" />
-                <h2 className="text-lg font-semibold">{img.title}</h2>
+
+              {/* Overlay on Hover */}
+              <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-white transition-opacity duration-300 p-4 text-center">
+                <div className="w-12 h-12 bg-[#dc2626] rounded-full flex items-center justify-center mb-3 shadow-lg transform scale-0 group-hover:scale-100 transition-transform duration-300 delay-100">
+                   <FaSearchPlus className="text-xl" />
+                </div>
+                <h2 className="text-sm font-bold tracking-wide uppercase translate-y-4 group-hover:translate-y-0 transition-transform duration-300 delay-100">
+                  {img.title}
+                </h2>
               </div>
             </motion.div>
           ))}
@@ -96,63 +118,76 @@ const HomeGallery = () => {
         <AnimatePresence>
           {lightboxOpen && images.length > 0 && (
             <motion.div
-              className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/90 backdrop-blur-sm p-4"
+              className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-900/95 backdrop-blur-md p-4"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              onClick={closeLightbox}
             >
               {/* Close Button */}
               <button
                 onClick={closeLightbox}
-                className="absolute top-6 right-6 text-white text-4xl hover:text-gray-300 transition"
+                className="absolute top-6 right-6 text-white/70 hover:text-white transition-colors p-2 bg-black/20 rounded-full"
               >
-                <FaTimes />
+                <FaTimes className="text-2xl" />
               </button>
 
-              {/* Prev/Next */}
-              <button
-                onClick={prevImage}
-                className="absolute left-6 top-1/2 -translate-y-1/2 text-white text-4xl hover:text-gray-300 transition"
-              >
-                <FaChevronLeft />
-              </button>
+              {/* Main Image Container */}
+              <div className="relative flex items-center justify-center w-full h-full max-h-[80vh] max-w-6xl" onClick={(e) => e.stopPropagation()}>
 
-              <motion.img
-                key={images[currentIndex]._id}
-                src={images[currentIndex].image_url}
-                alt={images[currentIndex].title}
-                className="max-w-full max-h-[80vh] object-contain rounded-xl shadow-2xl border border-white/20"
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.4 }}
-              />
+                {/* Prev Button */}
+                <button
+                  onClick={prevImage}
+                  className="absolute left-2 md:-left-12 top-1/2 -translate-y-1/2 text-white/70 hover:text-[#0056b3] transition p-3 bg-black/20 rounded-full hover:bg-white"
+                >
+                  <FaChevronLeft className="text-2xl" />
+                </button>
 
-              <p className="text-red-500 mt-4 font-semibold text-lg md:text-xl text-center drop-shadow">
-                {images[currentIndex].title}
-              </p>
+                {/* The Image */}
+                <div className="relative">
+                   <motion.img
+                    key={images[currentIndex]._id}
+                    src={images[currentIndex].image_url}
+                    alt={images[currentIndex].title}
+                    className="max-w-full max-h-[75vh] object-contain rounded-lg shadow-2xl border border-white/10"
+                    initial={{ scale: 0.95, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                  />
+                  {/* Title Caption */}
+                  <div className="absolute -bottom-12 left-0 w-full text-center">
+                    <p className="text-white font-bold text-xl tracking-wide">
+                      {images[currentIndex].title}
+                    </p>
+                  </div>
+                </div>
 
-              <button
-                onClick={nextImage}
-                className="absolute right-6 top-1/2 -translate-y-1/2 text-white text-4xl hover:text-gray-300 transition"
-              >
-                <FaChevronRight />
-              </button>
+                {/* Next Button */}
+                <button
+                  onClick={nextImage}
+                  className="absolute right-2 md:-right-12 top-1/2 -translate-y-1/2 text-white/70 hover:text-[#0056b3] transition p-3 bg-black/20 rounded-full hover:bg-white"
+                >
+                  <FaChevronRight className="text-2xl" />
+                </button>
+              </div>
 
               {/* Thumbnail Strip */}
-              <div className="flex space-x-3 overflow-x-auto mt-8 max-w-full py-2 scrollbar-hide">
-                {images.map((img, index) => (
-                  <img
-                    key={img._id}
-                    src={img.image_url}
-                    alt={img.title}
-                    className={`h-20 w-20 object-cover rounded-lg cursor-pointer border-2 ${
-                      currentIndex === index
-                        ? "border-red-500"
-                        : "border-transparent"
-                    } hover:border-yellow-500 transition`}
-                    onClick={() => setCurrentIndex(index)}
-                  />
-                ))}
+              <div className="absolute bottom-4 left-0 w-full flex justify-center px-4" onClick={(e) => e.stopPropagation()}>
+                <div className="flex space-x-3 overflow-x-auto py-2 px-4 max-w-full scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
+                  {images.map((img, index) => (
+                    <img
+                      key={img._id}
+                      src={img.image_url}
+                      alt={img.title}
+                      className={`h-16 w-16 object-cover rounded-md cursor-pointer transition-all duration-300 border-2 ${
+                        currentIndex === index
+                          ? "border-[#0056b3] opacity-100 scale-110"
+                          : "border-transparent opacity-50 hover:opacity-100"
+                      }`}
+                      onClick={() => setCurrentIndex(index)}
+                    />
+                  ))}
+                </div>
               </div>
             </motion.div>
           )}

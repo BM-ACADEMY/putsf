@@ -1,16 +1,10 @@
 import React, { useState, useRef } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-
-// Assuming this path is correct:
 import logo from "../../../assets/putsf-logo.jpg";
+import { FaUser, FaPhoneAlt, FaIdCard, FaMapMarkerAlt, FaUpload } from "react-icons/fa";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
-// Define the official brand colors for use in the UI
-const BRAND_BLUE = "#0A2A70"; // Dark Blue for text/accents
-const BRAND_RED = "#D62828"; // Red for secondary accents
-const BRAND_YELLOW = "#FECD00"; // Yellow from the logo
 
 export default function License() {
   const [formData, setFormData] = useState({
@@ -28,25 +22,16 @@ export default function License() {
   const [previewUrl, setPreviewUrl] = useState(null);
   const fileInputRef = useRef(null);
 
-  /* ---------------------------------------------------------
-      LIVE PHONE CHECK
-      --------------------------------------------------------- */
+  // Live Phone Check
   const checkPhone = async (number) => {
     if (number.length !== 10) {
       setPhoneAvailable(null);
       setPhoneMessage("");
       return;
     }
-
     setChecking(true);
-
     try {
-      const res = await axios.get(
-  `${API_BASE_URL}/putsf/check_phone/`,
-  { params: { phone: number } }
-);
-
-
+      const res = await axios.get(`${API_BASE_URL}/putsf/check_phone/`, { params: { phone: number } });
       if (res.data.available) {
         setPhoneAvailable(true);
         setPhoneMessage("Phone number is available");
@@ -58,29 +43,26 @@ export default function License() {
       setPhoneAvailable(false);
       setPhoneMessage("Server error checking number");
     }
-
     setChecking(false);
   };
 
-  /* ---------------------------------------------------------
-      FORM FIELD CHANGE (Aadhar Formatting Added)
-      --------------------------------------------------------- */
   const handleChange = (e) => {
     const { name, value, files } = e.target;
 
     if (name === "phone") {
       const clean = value.replace(/\D/g, "");
-      setFormData((prev) => ({ ...prev, phone: clean }));
-      checkPhone(clean);
+      if (clean.length <= 10) {
+          setFormData((prev) => ({ ...prev, phone: clean }));
+          checkPhone(clean);
+      }
       return;
     }
 
-    // AADHAR NUMBER FORMATTING LOGIC
     if (name === "aadhar_number") {
       const cleanNumber = value.replace(/\D/g, "");
-      const restrictedNumber = cleanNumber.substring(0, 12);
-
-      setFormData((prev) => ({ ...prev, aadhar_number: restrictedNumber }));
+      if (cleanNumber.length <= 12) {
+          setFormData((prev) => ({ ...prev, aadhar_number: cleanNumber }));
+      }
       return;
     }
 
@@ -95,9 +77,6 @@ export default function License() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  /**
-    * Helper function to format the Aadhar number for display (4-4-4 pattern)
-    */
   const formatAadhar = (number) => {
       if (!number) return '';
       const parts = [];
@@ -107,10 +86,6 @@ export default function License() {
       return parts.join('-');
   };
 
-
-  /* ---------------------------------------------------------
-      VALIDATE BEFORE SUBMIT
-      --------------------------------------------------------- */
   const validate = () => {
     if (!formData.name.trim()) return toast.error("Enter full name");
     if (formData.aadhar_number.length !== 12) return toast.error("Aadhar number must be 12 digits");
@@ -118,262 +93,230 @@ export default function License() {
     if (phoneAvailable === false) return toast.error("Phone already registered!");
     if (!formData.address.trim()) return toast.error("Enter address");
     if (!formData.photo) return toast.error("Upload a photo");
-
     return true;
   };
 
-  /* ---------------------------------------------------------
-      SUBMIT FORM → SEND TO BACKEND
-      --------------------------------------------------------- */
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
 
     setSubmitting(true);
-
     const data = new FormData();
     Object.entries(formData).forEach(([k, v]) => data.append(k, v ?? ""));
 
     try {
       await axios.post(`${API_BASE_URL}/putsf/`, data, {
-  headers: { "Content-Type": "multipart/form-data" },
-});
-
-
-      toast.success("Membership application submitted!");
-
-      // Reset form
-      setFormData({
-        name: "",
-        aadhar_number: "",
-        phone: "",
-        address: "",
-        photo: null,
+        headers: { "Content-Type": "multipart/form-data" },
       });
-
-      // Cleanup
+      toast.success("Membership application submitted!");
+      setFormData({ name: "", aadhar_number: "", phone: "", address: "", photo: null });
       if (previewUrl) URL.revokeObjectURL(previewUrl);
       setPreviewUrl(null);
       setPhoneMessage("");
       setPhoneAvailable(null);
-
       if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (err) {
       toast.error(err.response?.data?.error || "Submission failed");
     }
-
     setSubmitting(false);
   };
 
-  /* ---------------------------------------------------------
-      UI
-      --------------------------------------------------------- */
-
-  // Custom Background Style: Using a subtle repeating pattern derived from brand colors
-  // NOTE: In a real project, you would create a small SVG pattern and import it.
-  // Here, I use a simple linear gradient for a modern vector feel.
-  const customBackgroundStyle = {
-    backgroundColor: '#f9fafb', // bg-gray-50 base
-  backgroundImage: `
-    linear-gradient(to right, rgba(10, 42, 112, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(10, 42, 112, 0.05) 1px, #f9fafb 1px)
-  `,
-  backgroundSize: '30px 30px', // Adjust size for tighter or looser grid
-  minHeight: '100vh',
-  };
-
   return (
-    <div
-      className="flex items-start md:items-center justify-center py-12 px-4"
-      style={customBackgroundStyle}
-    >
-      <div className="w-full max-w-5xl mx-auto">
-        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200">
+    <div className="min-h-screen py-16 px-4 flex justify-center bg-slate-50 relative overflow-hidden">
 
-          {/* HEADER */}
-          <div className="px-6 py-8 border-b border-gray-200" style={{ backgroundColor: BRAND_BLUE }}>
-            <div className="flex items-center gap-4">
-              {/* Logo Image Integration (uses imported 'logo') */}
-              <div
-                className="w-16 h-16 flex items-center justify-center"
-              >
-                <img
-                  src={logo}
-                  alt="Namathu Makkal Kazhagam Logo"
-                  className="w-full h-full object-contain"
-                />
-              </div>
+      {/* 🏁 Background Texture */}
+      <div className="absolute inset-0 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:20px_20px] opacity-60 pointer-events-none"></div>
 
-              <div>
-                <h1 className="text-3xl font-extrabold text-white">
-                  Membership Card Application
-                </h1>
-                <p className="text-base mt-1 text-gray-300">
-                  Urupinar Attai — உறுப்பினர் அட்டை
-                </p>
-              </div>
+      <div className="w-full max-w-6xl relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        {/* 📝 FORM SECTION */}
+        <div className="lg:col-span-2 bg-white rounded-2xl shadow-xl overflow-hidden border-t-8 border-[#0056b3]">
+          <div className="px-8 py-6 border-b border-gray-100 bg-gray-50/50 flex items-center gap-4">
+            <div className="bg-white p-2 rounded-full shadow-sm">
+                <img src={logo} alt="Logo" className="w-12 h-12 object-contain" />
+            </div>
+            <div>
+                <h1 className="text-2xl font-black text-slate-900">Membership Application</h1>
+                <p className="text-sm text-gray-500 font-medium">Join the Official Student Body</p>
             </div>
           </div>
 
-          {/* BODY */}
-          <div className="px-6 md:px-10 py-8 grid grid-cols-1 lg:grid-cols-3 gap-10">
+          <form onSubmit={handleSubmit} className="p-8 space-y-6">
 
-            {/* FORM */}
-            <form onSubmit={handleSubmit} className="lg:col-span-2 space-y-6">
-              <fieldset className="space-y-6">
-                <legend className="sr-only">Personal Information</legend>
+            {/* Name */}
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
+                <FaUser className="text-[#0056b3]" /> Full Name
+              </label>
+              <input
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Enter your full name"
+                className="w-full border-2 border-slate-200 px-4 py-3 rounded-xl focus:border-[#0056b3] focus:ring-0 transition-colors outline-none font-semibold text-slate-800"
+                required
+              />
+            </div>
 
-                {/* Name */}
-                <div>
-                  <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-1">Full Name *</label>
-                  <input
-                    id="name"
-                    name="name"
-                    value={formData.name}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Aadhar */}
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
+                  <FaIdCard className="text-[#0056b3]" /> Aadhar Number
+                </label>
+                <input
+                  name="aadhar_number"
+                  value={formatAadhar(formData.aadhar_number)}
+                  onChange={handleChange}
+                  placeholder="XXXX-XXXX-XXXX"
+                  maxLength={14}
+                  className="w-full border-2 border-slate-200 px-4 py-3 rounded-xl focus:border-[#0056b3] outline-none font-mono text-slate-800 tracking-wider"
+                  required
+                />
+              </div>
+
+              {/* Phone */}
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
+                  <FaPhoneAlt className="text-[#0056b3]" /> Phone Number
+                </label>
+                <div className="relative">
+                    <input
+                    name="phone"
+                    value={formData.phone}
                     onChange={handleChange}
-                    placeholder="Enter your full name"
-                    className="w-full border border-gray-300 px-4 py-3 rounded-xl focus:ring-blue-600 focus:border-blue-600 transition duration-150 shadow-sm"
+                    placeholder="10-digit mobile number"
+                    maxLength={10}
+                    className={`w-full border-2 px-4 py-3 rounded-xl outline-none font-mono font-bold tracking-widest ${
+                        phoneAvailable === false ? "border-red-500 bg-red-50" :
+                        phoneAvailable === true ? "border-green-500 bg-green-50" :
+                        "border-slate-200 focus:border-[#0056b3]"
+                    }`}
                     required
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                  {/* Aadhar (Value is formatted) */}
-                  <div>
-                    <label htmlFor="aadhar_number" className="block text-sm font-semibold text-gray-700 mb-1">Aadhar Number (12 Digits) *</label>
-                    <input
-                      id="aadhar_number"
-                      name="aadhar_number"
-                      value={formatAadhar(formData.aadhar_number)}
-                      onChange={handleChange}
-                      placeholder="XXXX-XXXX-XXXX"
-                      className="w-full border border-gray-300 px-4 py-3 rounded-xl focus:ring-blue-600 focus:border-blue-600 transition duration-150 shadow-sm"
-                      required
                     />
-                    <p className="text-xs text-gray-500 mt-2">Enter digits only. Automatically formatted as 4-4-4.</p>
-                  </div>
-
-                  {/* Phone */}
-                  <div>
-                    <label htmlFor="phone" className="block text-sm font-semibold text-gray-700 mb-1">Phone (10 Digits) *</label>
-                    <input
-                      id="phone"
-                      name="phone"
-                      type="tel"
-                      value={formData.phone}
-                      onChange={handleChange}
-                      maxLength={10}
-                      placeholder="Your mobile number"
-                      className="w-full border border-gray-300 px-4 py-3 rounded-xl focus:ring-blue-600 focus:border-blue-600 transition duration-150 shadow-sm"
-                      required
-                    />
-
-                    {/* Phone check status with icons */}
-                    {phoneMessage && (
-                      <div className={`flex items-center text-xs mt-2 font-medium ${
-                        phoneAvailable ? "text-green-600" : "text-red-600"
-                      }`}>
-                        {checking ? (
-                          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                        ) : phoneAvailable ? (
-                          <svg className="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-                        ) : (
-                          <svg className="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-                        )}
-                        {checking ? "Checking..." : phoneMessage}
-                      </div>
+                    {checking && (
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                            <div className="w-5 h-5 border-2 border-[#0056b3] border-t-transparent rounded-full animate-spin"></div>
+                        </div>
                     )}
-                  </div>
                 </div>
+                {phoneMessage && (
+                    <p className={`text-xs mt-1 font-bold ${phoneAvailable ? "text-green-600" : "text-red-600"}`}>
+                        {phoneMessage}
+                    </p>
+                )}
+              </div>
+            </div>
 
-                {/* Address */}
-                <div>
-                  <label htmlFor="address" className="block text-sm font-semibold text-gray-700 mb-1">Full Residential Address *</label>
-                  <textarea
-                    id="address"
-                    name="address"
-                    value={formData.address}
-                    onChange={handleChange}
-                    rows="4"
-                    placeholder="Street, City, District, Pincode"
-                    className="w-full border border-gray-300 px-4 py-3 rounded-xl focus:ring-blue-600 focus:border-blue-600 transition duration-150 shadow-sm"
-                    required
-                  />
-                </div>
+            {/* Address */}
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
+                <FaMapMarkerAlt className="text-[#0056b3]" /> Residential Address
+              </label>
+              <textarea
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                rows="3"
+                placeholder="Street, City, District, Pincode"
+                className="w-full border-2 border-slate-200 px-4 py-3 rounded-xl focus:border-[#0056b3] outline-none text-slate-800 resize-none"
+                required
+              />
+            </div>
 
-                {/* Photo upload */}
-                <div className="pt-4">
-                  <label htmlFor="photo" className="block text-sm font-semibold text-gray-700 mb-2">Upload Passport Photo *</label>
-                  <input
-                    id="photo"
+            {/* Photo Upload */}
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
+                <FaUpload className="text-[#0056b3]" /> Upload Photo
+              </label>
+              <div className="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center hover:bg-slate-50 transition-colors cursor-pointer relative group">
+                <input
                     type="file"
                     ref={fileInputRef}
                     name="photo"
                     accept="image/*"
                     onChange={handleChange}
-                    className="block w-full text-sm text-gray-600 file:mr-4 file:py-3 file:px-5 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition duration-150 cursor-pointer"
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                     required
-                  />
-                  <p className="text-xs text-gray-500 mt-2">Accepted formats: JPG, PNG. Max size: 2MB.</p>
+                />
+                <div className="flex flex-col items-center justify-center text-slate-500 group-hover:text-[#0056b3]">
+                    <FaUpload className="text-3xl mb-2" />
+                    <p className="font-medium">{formData.photo ? formData.photo.name : "Click to upload passport size photo"}</p>
+                    <p className="text-xs text-gray-400 mt-1">JPG, PNG (Max 2MB)</p>
                 </div>
-              </fieldset>
-
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={submitting || checking}
-                className="w-full md:w-auto mt-6 px-10 py-3 text-white font-bold text-lg rounded-full shadow-xl hover:opacity-90 transition duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed transform hover:scale-[1.01]"
-                style={{ backgroundColor: BRAND_BLUE }}
-              >
-                {submitting ? "Submitting..." : "Submit Application"}
-              </button>
-            </form>
-
-            {/* PREVIEW (Enhanced Card) */}
-            <aside className="lg:col-span-1 h-fit lg:sticky lg:top-8">
-              <div className="p-7 bg-gray-800 rounded-2xl shadow-2xl transform transition duration-300 hover:shadow-gray-500/50">
-                <h3 className="text-xl font-bold text-white mb-6 border-b border-gray-700 pb-3">Digital Card Preview</h3>
-
-                {/* Photo Upload Area */}
-                <div className="w-full aspect-square max-w-[200px] bg-white/10 border-4 border-dashed rounded-xl mx-auto overflow-hidden flex items-center justify-center p-2 shadow-inner group transition duration-300 border-gray-400">
-                  {previewUrl ? (
-                    <img src={previewUrl} alt="Applicant Photo" className="w-full h-full object-cover rounded-lg" />
-                  ) : (
-                    <span className="text-gray-400 font-medium text-sm group-hover:text-red-300">Upload Photo Here</span>
-                  )}
-                </div>
-
-                {/* Details */}
-                <div className="mt-6 text-left space-y-3">
-                  <div className="border-b border-gray-700 pb-2">
-                    <p className="text-gray-400 text-sm">Member Name</p>
-                    <p className="text-white text-xl font-extrabold truncate">{formData.name || "FULL NAME"}</p>
-                  </div>
-
-                  <div>
-                    <p className="text-gray-400 text-sm">ID No. (Aadhar)</p>
-                    <p className="text-lg font-mono" style={{ color: BRAND_YELLOW }}>{formatAadhar(formData.aadhar_number) || "XXXX-XXXX-XXXX"}</p>
-                  </div>
-
-                  <div>
-                    <p className="text-gray-400 text-sm">Contact Phone</p>
-                    <p className="text-gray-200 text-lg font-mono">{formData.phone || "XXXXXXXXXX"}</p>
-                  </div>
-                </div>
-
-                <p className="mt-6 text-xs text-gray-500">
-                    *The final card design may vary slightly.
-                </p>
-
               </div>
-            </aside>
-          </div>
+            </div>
 
-          <div className="px-6 py-4 bg-gray-50 text-sm text-gray-600 border-t border-gray-200">
-            **Important Note:** All fields marked with an asterisk (*) are mandatory for application submission.
-          </div>
+            <button
+              type="submit"
+              disabled={submitting || checking}
+              className={`w-full py-4 text-white font-bold text-lg rounded-xl shadow-lg transition-all transform hover:-translate-y-1
+                ${submitting ? "bg-slate-400 cursor-not-allowed" : "bg-[#dc2626] hover:bg-[#b91c1c] hover:shadow-red-200"}`}
+            >
+              {submitting ? "Submitting Application..." : "Submit Application"}
+            </button>
+          </form>
         </div>
+
+        {/* 🪪 PREVIEW CARD SECTION */}
+        <div className="lg:col-span-1 space-y-6">
+            <div className="bg-[#0f172a] text-white rounded-2xl shadow-2xl p-6 sticky top-8 border border-slate-800">
+                <div className="flex items-center justify-between mb-6 border-b border-slate-700 pb-4">
+                    <h3 className="font-bold text-lg">Live ID Preview</h3>
+                    <span className="bg-green-500/20 text-green-400 text-xs px-2 py-1 rounded font-bold uppercase">Active</span>
+                </div>
+
+                {/* ID Card Mockup */}
+                <div className="bg-gradient-to-br from-white to-slate-100 text-slate-900 rounded-xl overflow-hidden shadow-lg relative">
+                    {/* Header Strip */}
+                    <div className="h-2 bg-[#dc2626] w-full"></div>
+                    <div className="bg-[#0056b3] p-3 flex items-center gap-3">
+                        <img src={logo} alt="Logo" className="w-10 h-10 bg-white rounded-full p-1" />
+                        <div>
+                            <h4 className="text-white font-black text-sm leading-tight">PUTSF</h4>
+                            <p className="text-blue-200 text-[10px] font-bold uppercase">Official Member Card</p>
+                        </div>
+                    </div>
+
+                    <div className="p-5 flex flex-col items-center">
+                        <div className="w-28 h-28 bg-slate-200 rounded-lg overflow-hidden border-2 border-slate-300 shadow-inner mb-4">
+                            {previewUrl ? (
+                                <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
+                            ) : (
+                                <div className="w-full h-full flex items-center justify-center text-slate-400 text-xs text-center p-2">
+                                    Photo Preview
+                                </div>
+                            )}
+                        </div>
+
+                        <h2 className="text-xl font-black text-slate-900 text-center uppercase leading-tight mb-1">
+                            {formData.name || "YOUR NAME"}
+                        </h2>
+                        <p className="text-xs font-bold text-[#dc2626] uppercase tracking-widest mb-4">Student Member</p>
+
+                        <div className="w-full space-y-2 text-sm border-t border-slate-200 pt-3">
+                            <div className="flex justify-between">
+                                <span className="text-slate-500 font-semibold">ID No:</span>
+                                <span className="font-mono font-bold">{formatAadhar(formData.aadhar_number) || "XXXX-XXXX"}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-slate-500 font-semibold">Phone:</span>
+                                <span className="font-mono font-bold">{formData.phone || "XXXXXXXXXX"}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {/* Footer Strip */}
+                    <div className="bg-slate-900 text-center py-1">
+                        <p className="text-[8px] text-slate-500 uppercase tracking-widest">Authorized Signature</p>
+                    </div>
+                </div>
+
+                <p className="text-xs text-slate-500 text-center mt-6">
+                    * This is a preview. Your actual card may contain a QR code and official hologram.
+                </p>
+            </div>
+        </div>
+
       </div>
     </div>
   );

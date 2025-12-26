@@ -41,6 +41,7 @@ import LicenseDownload from "../Modules/Homepages/Pages/LicenseDownload";
 import Contact from "../Modules/Homepages/Pages/Contact";
 import Complaint from "../Modules/Homepages/Pages/Complaint";
 import LicenseCardPdfWrapper from "../Modules/Homepages/Pages/LicenseCardPdfWrapper";
+import About from "../Modules/Homepages/Pages/About";
 
 
 const AppRoutes = () => {
@@ -105,6 +106,15 @@ const AppRoutes = () => {
             </Layout>
           }
         />
+        <Route
+  path="/about"
+  element={
+    <Layout>
+      <About />
+    </Layout>
+  }
+/>
+
 
 
         {/* ---------- Admin ---------- */}
