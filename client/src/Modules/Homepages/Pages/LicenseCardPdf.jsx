@@ -4,7 +4,7 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import API from "../../../api";
 import { toast } from "react-toastify";
-import signature from "../../../assets/banner/signature.png";
+import signature from "../../../assets/banner/Untitled design (4).png";
 import personImage from "../../../assets/banner/Untitled design (1).png";
 import qrcode from "../../../assets/banner/qrcode.svg";
 import logo from "../../../assets/putsf-logo.jpg";
@@ -129,7 +129,7 @@ export default function LicenseCardPdf({ license = {} }) {
             <div style={{ position: "relative", width: 200, height: 150 }}>
               <div style={{ position: "absolute", bottom: -22, right: -110, display: "flex", zIndex: 99, flexDirection: "column", alignItems: "center" }}>
                 <img src={signature} alt="signature" style={{ width: 110, objectFit: "contain" }} />
-                <div style={{ color: "#0033A0", fontWeight: 600, marginTop: -2 }}>Authorized Signature</div>
+                <div style={{ color: "#0033A0", fontWeight: 600, marginTop: -2 }}></div>
               </div>
             </div>
 
