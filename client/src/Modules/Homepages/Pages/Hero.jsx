@@ -26,11 +26,12 @@ const Hero = () => {
 
             {/* Main Headline */}
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-slate-900 leading-[1.15] mb-6">
-              மாணவர்கள் <br/>
+              மாணவர்களின் உரிமையும் <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0056b3] to-[#dc2626]">
-                முன்னேற்றக் கூட்டமைப்பு
+                வளர்ச்சியும் எங்கள் நோக்கம்
               </span>
             </h1>
+
 
             {/* Subtext */}
             <p className="text-lg md:text-xl text-gray-600 leading-relaxed mb-8 max-w-2xl mx-auto lg:mx-0">
@@ -47,12 +48,13 @@ const Hero = () => {
 
             {/* Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+
               {/* Join Button (Primary Blue) */}
               <Link
                 to="/license"
                 className="bg-[#0056b3] hover:bg-[#004494] text-white font-bold text-lg px-8 py-4 rounded-xl shadow-lg shadow-blue-200 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2"
               >
-                இயக்கத்தில் சேரவும்
+                TO JOIN PUTSF
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3" />
                 </svg>
@@ -61,7 +63,7 @@ const Hero = () => {
               {/* About Button (Outline) */}
               <Link
                 to="/about"
-                className="bg-white border-2 border-slate-200 hover:border-[#0056b3] text-slate-700 hover:text-[#0056b3] font-bold text-lg px-8 py-4 rounded-xl hover:bg-blue-50 transition-all duration-300"
+                className="bg-white border-2 border-slate-200 hover:border-[#0056b3] text-slate-700 hover:text-[#0056b3] font-bold text-lg px-8 py-4 rounded-xl hover:bg-blue-50 transition-all duration-300 flex items-center justify-center"
               >
                 எங்களை பற்றி
               </Link>
@@ -82,11 +84,9 @@ const Hero = () => {
                 className="w-full h-auto object-cover transform transition-transform duration-700 group-hover:scale-105"
               />
 
-              {/* Overlay Gradient (Optional - makes text on image readable if needed, or just adds depth) */}
+              {/* Overlay Gradient */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none"></div>
             </div>
-
-           
 
           </div>
 
