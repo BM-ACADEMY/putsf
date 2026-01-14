@@ -29,10 +29,10 @@ const Banner = () => {
   // ✅ Light Theme Loading
   if (loading) {
     return (
-      <section className="w-full h-screen bg-white flex items-center justify-center">
+      <section className="w-full h-[50vh] md:h-screen bg-white flex items-center justify-center">
         <div className="flex flex-col items-center">
-          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-6"></div>
-          <p className="text-gray-500 font-medium tracking-wide animate-pulse">LOADING CONTENT...</p>
+          <div className="w-12 h-12 md:w-16 md:h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4 md:mb-6"></div>
+          <p className="text-gray-500 text-sm md:text-base font-medium tracking-wide animate-pulse">LOADING CONTENT...</p>
         </div>
       </section>
     );
@@ -41,8 +41,8 @@ const Banner = () => {
   // ✅ Light Theme Error
   if (error || !banner) {
     return (
-      <section className="w-full h-[50vh] bg-white flex items-center justify-center">
-        <p className="text-gray-500">No banner available.</p>
+      <section className="w-full h-[40vh] md:h-[50vh] bg-white flex items-center justify-center">
+        <p className="text-gray-500 text-sm md:text-base">No banner available.</p>
       </section>
     );
   }
@@ -52,42 +52,40 @@ const Banner = () => {
     : `${MEDIA_URL}${banner.image}`;
 
   return (
-    // ✅ Full Screen Height Section - White Background
-    <section className="relative w-full h-[calc(100vh-80px)] min-h-[600px] flex items-center justify-center overflow-hidden bg-white">
+    // ✅ KEY FIX: Removed fixed height for mobile.
+    // It is now 'h-auto' by default (fits image), and 'md:h-screen' on desktop.
+    <section className="relative w-full h-auto md:h-[calc(100vh-80px)] md:min-h-[600px] flex items-center justify-center overflow-hidden bg-white">
 
-      {/* 🖼️ Background Image - NO DARK OVERLAY */}
-      <div className="absolute inset-0 w-full h-full">
+      {/* 🖼️ Background Image */}
+      <div className="relative md:absolute inset-0 w-full h-full">
         <img
           src={imageSrc}
           alt={banner.title}
-          className="w-full h-full object-cover"
+          // ✅ KEY FIX: 'object-contain' for mobile ensures the WHOLE poster is seen.
+          // 'md:object-cover' for desktop keeps the big immersive look.
+          className="w-full h-auto md:h-full object-contain md:object-cover object-center"
         />
-        {/* Optional: Very subtle white wash at bottom just to help text definition if image is busy */}
-        <div className="absolute inset-0 bg-gradient-to-t from-white/40 via-transparent to-transparent"></div>
+
+        {/* Gradient Overlay - Only visible on Desktop where we might have overlay text */}
+        <div className="hidden md:block absolute inset-0 bg-gradient-to-t from-white/40 via-transparent to-transparent"></div>
       </div>
 
-      {/* 📝 Central Content - Dark Text */}
-      <div className="relative z-10 container mx-auto px-6 text-center max-w-5xl mt-10">
+      {/* 📝 Central Content - HIDDEN ON MOBILE */}
+      {/* Since your poster image already has text, we hide this HTML text on mobile so it doesn't double up or cover the image. */}
+      <div className="hidden md:block relative z-10 container mx-auto px-6 text-center max-w-5xl mt-10">
 
-        
-        {/* Main Title - Dark Slate Color */}
+        {/* Main Title */}
         <h2 className="text-5xl md:text-7xl lg:text-8xl font-black text-slate-900 leading-tight mb-6 drop-shadow-lg animate-fadeInUp delay-200">
           {banner.title}
         </h2>
 
-        {/* Subtitle - Medium Gray */}
+        {/* Subtitle */}
         {banner.subtitle && (
-          // Added mb-16 for better spacing since buttons are gone
           <p className="text-lg md:text-2xl text-gray-800 mb-16 font-medium leading-relaxed max-w-3xl mx-auto animate-fadeInUp delay-300 drop-shadow-md">
             {banner.subtitle}
           </p>
         )}
-
-        {/* 🚫 BUTTONS REMOVED HERE 🚫 */}
-
       </div>
-
-      {/* 🚫 SCROLL INDICATOR REMOVED HERE 🚫 */}
 
       {/* ✨ CSS Animations */}
       <style>
