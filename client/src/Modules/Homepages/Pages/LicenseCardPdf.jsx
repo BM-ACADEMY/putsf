@@ -71,27 +71,27 @@ export default function LicenseCardPdf({ license = {} }) {
         {/* Header */}
         <div style={{ height: 90, display: "flex", alignItems: "center", paddingLeft: 20, paddingRight: 20, background: "linear-gradient(to bottom, #014f94)", borderBottom: "1px solid #0a0a0aad" }}>
 
-          {/* Left: Logo - Added flexShrink: 0 to prevent squashing */}
+          {/* Left: Logo */}
           <div style={{ width: 75, height: 75, minWidth: 75, flexShrink: 0, borderRadius: "50%", background: "#fff", display: "flex", justifyContent: "center", alignItems: "center", marginRight: 15 }}>
             <img src={logo} crossOrigin="anonymous" style={{ width: 65, height: 65, borderRadius: "50%" }} alt="logo" />
           </div>
 
-          {/* Center: Text - Added flex-grow to take up available space properly */}
+          {/* Center: Text - UPPERCASE */}
           <div style={{ flexGrow: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
-            <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: "white", lineHeight: "1.2" }}>Puducherry Union Territory Student's Federation</h1>
-            <p style={{ margin: 0, fontSize: 13, textAlign: "center", fontWeight: 600, color: "white" }}>Official Membership Identification Card</p>
+            <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: "white", lineHeight: "1.2", textTransform: "uppercase" }}>Puducherry Union Territory Student's Federation</h1>
+            <p style={{ margin: 0, fontSize: 13, textAlign: "center", fontWeight: 600, color: "white", textTransform: "uppercase" }}>Official Membership Identification Card</p>
           </div>
 
-          {/* Right: Founder Image - Added flexShrink: 0 and minWidth to prevent squashing */}
+          {/* Right: Founder Image */}
           <div style={{ width: 75, height: 75, minWidth: 75, flexShrink: 0, borderRadius: "50%", background: "#fff", display: "flex", justifyContent: "center", alignItems: "center", marginLeft: 15 }}>
             <img src={personImage} crossOrigin="anonymous" style={{ width: 65, height: 65, borderRadius: "50%", objectFit: "cover" }} alt="Founder" />
           </div>
 
         </div>
 
-        {/* small title */}
+        {/* small title - UPPERCASE */}
         <div style={{ textAlign: "center", marginTop: 12 }}>
-          <span style={{ padding: "4px 15px", borderRadius: 15, color: "red", fontWeight: 700, fontSize: 12 }}>Membership Card</span>
+          <span style={{ padding: "4px 15px", borderRadius: 15, color: "red", fontWeight: 700, fontSize: 12, textTransform: "uppercase" }}>Membership Card</span>
         </div>
 
         {/* Body */}
@@ -109,7 +109,8 @@ export default function LicenseCardPdf({ license = {} }) {
               <img src={qrcode} alt="QR" crossOrigin="anonymous" style={{ width: 60, height: 60, marginTop: 5 }} />
             </div>
 
-            <div style={{ padding: "10px 12px", borderRadius: 10, width: 320, height: 185, display: "flex", flexDirection: "column", justifyContent: "space-evenly" }}>
+            {/* Content Right Side - UPPERCASE applied to container */}
+            <div style={{ padding: "10px 12px", borderRadius: 10, width: 320, height: 185, display: "flex", flexDirection: "column", justifyContent: "space-evenly", textTransform: "uppercase" }}>
               <div style={{ display: "flex", fontSize: 14 }}>
                 <span style={{ width: 90, fontWeight: 700, color: "#0033A0" }}>Name</span>
                 <span>{name}</span>
@@ -133,7 +134,7 @@ export default function LicenseCardPdf({ license = {} }) {
           </div>
         </div>
 
-        {/* Footer - Signature only */}
+        {/* Footer */}
         <div style={{ position: "absolute", bottom: 10, width: "100%", display: "flex", justifyContent: "flex-end", alignItems: "flex-end", padding: "0 20px", fontSize: 12, color: "#3a3939ad", fontWeight: 500 }}>
           <div style={{ display: "flex", alignItems: "flex-end", gap: 20 }}>
             <div style={{ position: "relative", width: 200, height: 150 }}>
