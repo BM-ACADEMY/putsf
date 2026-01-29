@@ -34,7 +34,6 @@ export default function LicenseCardPdf({ license = {} }) {
   const approveAndUpload = async () => {
     try {
       setLoading(true);
-
       const canvas = await html2canvas(cardRef.current, { scale: 2, useCORS: true });
       const imgData = canvas.toDataURL("image/jpeg", 1.0);
       const pdf = new jsPDF({ orientation: "landscape", unit: "px", format: [650, 420] });
@@ -49,7 +48,7 @@ export default function LicenseCardPdf({ license = {} }) {
       const whatsLink = res.data?.whatsapp_link;
       toast.success("Approved successfully!");
       if (whatsLink) {
-        try { navigator.clipboard.writeText(whatsLink); toast.info("WhatsApp link copied!"); } catch {}
+        try { navigator.clipboard.writeText(whatsLink); toast.info("WhatsApp link copied!"); } catch { }
         setTimeout(() => window.open(whatsLink, "_blank", "noopener,noreferrer"), 200);
       }
     } catch (err) {
@@ -68,15 +67,26 @@ export default function LicenseCardPdf({ license = {} }) {
   return (
     <div className="p-8">
       <div ref={cardRef} style={{ width: 650, height: 420, background: "#fff", border: "1px solid #0a0a0aad", position: "relative", overflow: "hidden", fontFamily: "Poppins, sans-serif" }}>
+
         {/* Header */}
-        <div style={{ height: 90, display: "flex", alignItems: "center", paddingLeft: 28, background: "linear-gradient(to bottom, #014f94)", borderBottom: "1px solid #0a0a0aad" }}>
-          <div style={{ width: 75, height: 75, borderRadius: "50%", background: "#fff", display: "flex", justifyContent: "center", alignItems: "center", marginRight: 20 }}>
+        <div style={{ height: 90, display: "flex", alignItems: "center", paddingLeft: 20, paddingRight: 20, background: "linear-gradient(to bottom, #014f94)", borderBottom: "1px solid #0a0a0aad" }}>
+
+          {/* Left: Logo - Added flexShrink: 0 to prevent squashing */}
+          <div style={{ width: 75, height: 75, minWidth: 75, flexShrink: 0, borderRadius: "50%", background: "#fff", display: "flex", justifyContent: "center", alignItems: "center", marginRight: 15 }}>
             <img src={logo} crossOrigin="anonymous" style={{ width: 65, height: 65, borderRadius: "50%" }} alt="logo" />
           </div>
-          <div>
-            <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700, color: "white" }}>PUTSF</h1>
-            <p style={{ margin: 0, fontSize: 14, textAlign: "center", fontWeight: 600, color: "white" }}>Official Membership Identification Card</p>
+
+          {/* Center: Text - Added flex-grow to take up available space properly */}
+          <div style={{ flexGrow: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
+            <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: "white", lineHeight: "1.2" }}>Puducherry Union Territory Student's Federation</h1>
+            <p style={{ margin: 0, fontSize: 13, textAlign: "center", fontWeight: 600, color: "white" }}>Official Membership Identification Card</p>
           </div>
+
+          {/* Right: Founder Image - Added flexShrink: 0 and minWidth to prevent squashing */}
+          <div style={{ width: 75, height: 75, minWidth: 75, flexShrink: 0, borderRadius: "50%", background: "#fff", display: "flex", justifyContent: "center", alignItems: "center", marginLeft: 15 }}>
+            <img src={personImage} crossOrigin="anonymous" style={{ width: 65, height: 65, borderRadius: "50%", objectFit: "cover" }} alt="Founder" />
+          </div>
+
         </div>
 
         {/* small title */}
@@ -123,7 +133,7 @@ export default function LicenseCardPdf({ license = {} }) {
           </div>
         </div>
 
-        {/* Footer - signature/person */}
+        {/* Footer - Signature only */}
         <div style={{ position: "absolute", bottom: 10, width: "100%", display: "flex", justifyContent: "flex-end", alignItems: "flex-end", padding: "0 20px", fontSize: 12, color: "#3a3939ad", fontWeight: 500 }}>
           <div style={{ display: "flex", alignItems: "flex-end", gap: 20 }}>
             <div style={{ position: "relative", width: 200, height: 150 }}>
@@ -131,10 +141,6 @@ export default function LicenseCardPdf({ license = {} }) {
                 <img src={signature} alt="signature" style={{ width: 110, objectFit: "contain" }} />
                 <div style={{ color: "#0033A0", fontWeight: 600, marginTop: -2 }}></div>
               </div>
-            </div>
-
-            <div style={{ position: "relative", width: 260, height: 270 }}>
-              <img src={personImage} alt="Person" style={{ position: "absolute", bottom: -30, right: -40, width: 300, height: 300, objectFit: "cover" }} />
             </div>
           </div>
         </div>
