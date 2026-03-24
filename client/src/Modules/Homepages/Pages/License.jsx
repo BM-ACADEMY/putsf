@@ -9,7 +9,6 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 export default function License() {
   const [formData, setFormData] = useState({
     name: "",
-    aadhar_number: "",
     phone: "",
     address: "",
     photo: null,
@@ -58,13 +57,6 @@ export default function License() {
       return;
     }
 
-    if (name === "aadhar_number") {
-      const cleanNumber = value.replace(/\D/g, "");
-      if (cleanNumber.length <= 12) {
-          setFormData((prev) => ({ ...prev, aadhar_number: cleanNumber }));
-      }
-      return;
-    }
 
     if (name === "photo") {
       const file = files?.[0] || null;
@@ -77,18 +69,9 @@ export default function License() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const formatAadhar = (number) => {
-      if (!number) return '';
-      const parts = [];
-      for (let i = 0; i < number.length; i += 4) {
-          parts.push(number.substring(i, i + 4));
-      }
-      return parts.join('-');
-  };
 
   const validate = () => {
     if (!formData.name.trim()) return toast.error("Enter full name");
-    if (formData.aadhar_number.length !== 12) return toast.error("Aadhar number must be 12 digits");
     if (formData.phone.length !== 10) return toast.error("Enter 10-digit phone number");
     if (phoneAvailable === false) return toast.error("Phone already registered!");
     if (!formData.address.trim()) return toast.error("Enter address");
@@ -109,7 +92,7 @@ export default function License() {
         headers: { "Content-Type": "multipart/form-data" },
       });
       toast.success("Membership application submitted!");
-      setFormData({ name: "", aadhar_number: "", phone: "", address: "", photo: null });
+      setFormData({ name: "", phone: "", address: "", photo: null });
       if (previewUrl) URL.revokeObjectURL(previewUrl);
       setPreviewUrl(null);
       setPhoneMessage("");
@@ -159,21 +142,6 @@ export default function License() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Aadhar */}
-              <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
-                  <FaIdCard className="text-[#0056b3]" /> Aadhar Number
-                </label>
-                <input
-                  name="aadhar_number"
-                  value={formatAadhar(formData.aadhar_number)}
-                  onChange={handleChange}
-                  placeholder="XXXX-XXXX-XXXX"
-                  maxLength={14}
-                  className="w-full border-2 border-slate-200 px-4 py-3 rounded-xl focus:border-[#0056b3] outline-none font-mono text-slate-800 tracking-wider"
-                  required
-                />
-              </div>
 
               {/* Phone */}
               <div>
@@ -295,10 +263,6 @@ export default function License() {
                         <p className="text-xs font-bold text-[#dc2626] uppercase tracking-widest mb-4">Student Member</p>
 
                         <div className="w-full space-y-2 text-sm border-t border-slate-200 pt-3">
-                            <div className="flex justify-between">
-                                <span className="text-slate-500 font-semibold">ID No:</span>
-                                <span className="font-mono font-bold">{formatAadhar(formData.aadhar_number) || "XXXX-XXXX"}</span>
-                            </div>
                             <div className="flex justify-between">
                                 <span className="text-slate-500 font-semibold">Phone:</span>
                                 <span className="font-mono font-bold">{formData.phone || "XXXXXXXXXX"}</span>

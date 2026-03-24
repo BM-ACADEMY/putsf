@@ -51,12 +51,10 @@ export default function LicenseAdmin() {
       // Safely convert fields to string before checking
       const name = String(item.name || "").toLowerCase();
       const phone = String(item.phone || "");
-      const aadhar = String(item.aadhar_number || "");
 
       return (
         name.includes(lowerTerm) ||
-        phone.includes(searchTerm) ||
-        aadhar.includes(searchTerm)
+        phone.includes(searchTerm)
       );
     });
 
@@ -154,7 +152,6 @@ export default function LicenseAdmin() {
                         </div>
                         <div>
                           <p className="font-bold text-slate-800">{item.name || "Unknown Name"}</p>
-                          <p className="text-xs text-slate-500">ID: {item.aadhar_number || "N/A"}</p>
                         </div>
                       </div>
                     </td>
